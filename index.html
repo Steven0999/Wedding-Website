@@ -1,9 +1,9 @@
-<!DOCTYPE html>
+ <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Caitriona & Steven — 25th March 2027</title>
+<title>Caitriona &amp; Steven — 25th March 2027</title>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Lato:wght@300;400&display=swap" rel="stylesheet" />
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -31,12 +31,14 @@
     position: fixed; inset: 0; background: var(--stone-100);
     display: flex; align-items: center; justify-content: center;
     z-index: 200; transition: opacity 0.9s ease;
+    overflow-y: auto; padding: 2rem 0;
   }
   #gate.fade-out { opacity: 0; pointer-events: none; }
 
   .envelope-wrap {
     width: min(540px, 92vw);
     transition: transform 0.85s cubic-bezier(0.4, 0, 0.2, 1);
+    margin: auto;
   }
   .envelope-wrap.rising { transform: translateY(-130vh); }
 
@@ -165,6 +167,76 @@
   }
   .btn-open:hover { background: var(--stone-900); }
   .btn-open:active { transform: scale(0.99); }
+
+  /* ── FORGOT PASSWORD (inside the login card) ── */
+  .forgot-wrap {
+    margin-top: 1.5rem;
+    padding-top: 1.25rem;
+    border-top: 1px solid var(--stone-100);
+    text-align: center;
+  }
+  .forgot-link {
+    background: none; border: none; cursor: pointer;
+    font-family: 'Lato', sans-serif; font-weight: 300;
+    font-size: 0.7rem; letter-spacing: 0.1em;
+    color: var(--stone-400); text-decoration: underline;
+    text-underline-offset: 3px; transition: color 0.2s;
+  }
+  .forgot-link:hover { color: var(--black); }
+
+  .forgot-panel {
+    max-height: 0; opacity: 0; overflow: hidden;
+    transition: max-height 0.45s ease, opacity 0.45s ease, margin 0.45s ease;
+    text-align: left;
+  }
+  .forgot-panel.open { max-height: 420px; opacity: 1; margin-top: 1.5rem; }
+
+  .forgot-hint {
+    text-align: center; font-size: 0.75rem; color: var(--stone-400);
+    font-weight: 300; line-height: 1.6; margin-bottom: 1.25rem;
+  }
+  .forgot-msg {
+    font-size: 0.7rem; line-height: 1.5; text-align: center;
+    color: var(--stone-500); min-height: 1rem; margin: 0.25rem 0 1rem;
+    font-weight: 300;
+  }
+  .forgot-msg.error { color: #f87171; }
+  .forgot-msg strong {
+    font-family: 'Playfair Display', serif; font-weight: 700;
+    color: var(--black); font-size: 0.95rem; letter-spacing: 0.03em;
+  }
+  .btn-forgot {
+    width: 100%;
+    background: transparent; color: var(--black);
+    border: 1px solid var(--black); cursor: pointer;
+    padding: 0.9rem; font-family: 'Lato', sans-serif;
+    font-size: 0.6rem; letter-spacing: 0.35em; text-transform: uppercase;
+    transition: background 0.2s, color 0.2s;
+  }
+  .btn-forgot:hover { background: var(--black); color: #fff; }
+
+  /* ── "or" divider + reference-code entry ── */
+  .alt-divider {
+    display: flex; align-items: center; gap: 1rem;
+    margin: 1.75rem 0 1.25rem;
+  }
+  .alt-divider::before, .alt-divider::after {
+    content: ''; flex: 1; height: 1px; background: var(--stone-200);
+  }
+  .alt-divider span {
+    font-size: 0.55rem; letter-spacing: 0.3em; text-transform: uppercase;
+    color: var(--stone-400);
+  }
+  .btn-code {
+    width: 100%; margin-top: 0.25rem;
+    background: transparent; color: var(--black);
+    border: 1px solid var(--black); cursor: pointer;
+    padding: 1rem; font-family: 'Lato', sans-serif;
+    font-size: 0.6rem; letter-spacing: 0.35em; text-transform: uppercase;
+    transition: background 0.2s, color 0.2s;
+  }
+  .btn-code:hover { background: var(--black); color: #fff; }
+  #refInput { text-transform: uppercase; letter-spacing: 0.15em; }
 
   @keyframes shake {
     0%,100% { transform: translateX(0); }
@@ -413,13 +485,25 @@
       <div class="login-divider"></div>
       <p class="login-hint">
         This invitation is personal to you.<br>
-        Enter the email and password from your invitation card to open it.
+        Scan your QR code, or enter the invitation code from your card below.
       </p>
 
+      <!-- ── INVITATION CODE (primary entry) ── -->
       <div class="field">
-        <label>Your Email Address</label>
+        <label>Invitation Code</label>
         <div class="field-row">
-          <input type="text" id="emailInput" placeholder="your@email.com" autocomplete="off" />
+          <input type="text" id="refInput" placeholder="e.g. CS-9F2K" autocomplete="off" />
+        </div>
+      </div>
+      <p class="error-msg" id="refError"></p>
+      <button class="btn-open" onclick="attemptRefLogin()">Open My Invitation</button>
+
+      <!-- ── NAME + PASSWORD (secondary) ── -->
+      <div class="alt-divider"><span>or use your name</span></div>
+      <div class="field">
+        <label>Your Name</label>
+        <div class="field-row">
+          <input type="text" id="nameInput" placeholder="As written on your invitation" autocomplete="off" />
         </div>
       </div>
 
@@ -435,7 +519,27 @@
 
       <p class="error-msg" id="errorMsg"></p>
 
-      <button class="btn-open" onclick="attemptLogin()">Open My Invitation</button>
+      <button class="btn-code" onclick="attemptLogin()">Sign In With Name</button>
+
+      <!-- ── FORGOT PASSWORD ──────────────────────────────── -->
+      <div class="forgot-wrap">
+        <button class="forgot-link" onclick="toggleForgot()">Forgotten your password?</button>
+        <div class="forgot-panel" id="forgotPanel">
+          <p class="forgot-hint">
+            Enter your name and we'll email your password to the
+            address we have on file for you.
+          </p>
+          <div class="field">
+            <label>Your Name</label>
+            <div class="field-row">
+              <input type="text" id="forgotName" placeholder="As written on your invitation" autocomplete="off" />
+            </div>
+          </div>
+          <p class="forgot-msg" id="forgotMsg"></p>
+          <button class="btn-forgot" onclick="sendPasswordReminder()">Email Me My Password</button>
+        </div>
+      </div>
+
     </div>
   </div>
 </div>
@@ -572,65 +676,69 @@
 
 </div>
 
+<!-- EmailJS SDK (lets a static page send email with no backend) -->
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 <script>
 // ════════════════════════════════════════════════════════════════════
 // GUEST DATA
-// Each guest has fully personalised copy throughout every section.
-// inviteType: 'full-day' or 'evening'
 // ════════════════════════════════════════════════════════════════════
 var GUESTS = [
   {
     email:    "steven.vaughanrr@hotmail.co.uk",
     password: "Groomtobe",
+    ref:      "CS-9F2K",
     name:     "Steven",
     inviteType: "full-day",
-
-    // Hero banner under the date
     namedTo: "This invitation belongs to Steven",
-
-    // Welcome section paragraph
     welcomeText: "Steven, having you with us on our wedding day means more than words can say. We've put this invitation together just for you, and we hope every moment of the day is as special for you as it will be for us.",
-
-    // Personal letter
     salutation: "Dear Steven,",
     letterBody: "We are so thrilled to invite you to share in our wedding day. You are one of the people who means the most to us, and we wouldn't want to celebrate this milestone without you there beside us. From the ceremony to the last dance, we hope you feel how much your presence means.",
     inviteTypeLabel: "Full Day Guest — Ceremony, Wedding Breakfast & Evening",
     letterExtra: "Please do join us from 13:30 at the Ceremony Barn. We've arranged everything to make sure you have the most wonderful day, and we can't wait to see you there.",
-
-    // Schedule — which arrival row to highlight
-    arrivalHighlight: 0, // index 0 = 13:30 arrival
-
-    // Schedule subtitle
+    arrivalHighlight: 0,
     scheduleNote: "Your full day begins at 13:30 — your seat will be reserved in the Ceremony Barn"
   },
   {
-    email:    "cnewton0690@gmail.com",
+    email:    "cnewton0610@gmail.com",
     password: "Bridetobe",
+    ref:      "CS-3M7T",
     name:     "Caitriona",
     inviteType: "full-day",
-
-    // Hero banner under the date
     namedTo: "This invitation belongs to Caitriona",
-
-    // Welcome section paragraph
     welcomeText: "Caitriona, this day would not be the same without you. We have put this invitation together just for you, and we cannot wait to share every single moment of it with you — from the very first to the very last.",
-
-    // Personal letter
     salutation: "Dear Caitriona,",
     letterBody: "It is with so much joy that we invite you to celebrate our wedding day with us. You hold a very special place in our hearts, and having you there as we say our vows and begin this new chapter together means everything to us. We want you to soak in every moment and know how loved and cherished you are.",
     inviteTypeLabel: "Full Day Guest — Ceremony, Wedding Breakfast & Evening",
     letterExtra: "Please join us from 13:30 at the Ceremony Barn, where your seat will be waiting for you. We have planned every detail with you in mind, and we are so excited to celebrate together.",
-
-    // Schedule — which arrival row to highlight
-    arrivalHighlight: 0, // index 0 = 13:30 arrival
-
-    // Schedule subtitle
+    arrivalHighlight: 0,
     scheduleNote: "Your full day begins at 13:30 — your seat will be reserved in the Ceremony Barn"
   }
 ];
 
 // ════════════════════════════════════════════════════════════════════
-// SCHEDULE ROWS (shared across all guests; arrival row gets highlighted per guest)
+// EMAILJS CONFIG  ←←←  EDIT THESE THREE VALUES
+// Sign up free at https://www.emailjs.com, then paste your IDs here.
+// Create a template with variables: {{guest_name}}, {{password}}, {{to_email}}
+// and set the template's "To Email" field to  {{to_email}}.
+// ════════════════════════════════════════════════════════════════════
+var EMAILJS_CONFIG = {
+  publicKey:  "YOUR_PUBLIC_KEY",
+  serviceId:  "YOUR_SERVICE_ID",
+  templateId: "YOUR_TEMPLATE_ID"
+};
+
+var emailjsReady = false;
+(function initEmailJS(){
+  try {
+    if (window.emailjs && EMAILJS_CONFIG.publicKey.indexOf("YOUR_") !== 0) {
+      emailjs.init({ publicKey: EMAILJS_CONFIG.publicKey });
+      emailjsReady = true;
+    }
+  } catch (e) { emailjsReady = false; }
+})();
+
+// ════════════════════════════════════════════════════════════════════
+// SCHEDULE ROWS
 // ════════════════════════════════════════════════════════════════════
 var SCHEDULE = [
   { time: "13:30", title: "Arrival",           desc: "Guests arrive at the Ceremony Barn" },
@@ -642,7 +750,7 @@ var SCHEDULE = [
 ];
 
 // ════════════════════════════════════════════════════════════════════
-// IMAGE PROXY — bypasses rivervalebarn.co.uk hotlink protection
+// IMAGE PROXY
 // ════════════════════════════════════════════════════════════════════
 function px(url) {
   return "https://wsrv.nl/?url=" + encodeURIComponent(url) + "&w=1400&output=jpg&q=85";
@@ -671,51 +779,30 @@ function togglePassword() {
   document.getElementById('passwordInput').type = pwVisible ? 'text' : 'password';
 }
 
-function attemptLogin() {
-  var emailVal = document.getElementById('emailInput').value.trim().toLowerCase();
-  var passVal  = document.getElementById('passwordInput').value.trim();
-  var errorEl  = document.getElementById('errorMsg');
+function normaliseRef(s){ return (s || '').toUpperCase().replace(/[^A-Z0-9]/g, ''); }
 
-  var guest = null;
-  for (var i = 0; i < GUESTS.length; i++) {
-    if (GUESTS[i].email.toLowerCase() === emailVal && GUESTS[i].password === passVal) {
-      guest = GUESTS[i]; break;
-    }
-  }
+function shakeCard(){
+  var card = document.getElementById('loginCard');
+  card.classList.remove('shake');
+  void card.offsetWidth;
+  card.classList.add('shake');
+}
 
-  if (!guest) {
-    errorEl.textContent = "Incorrect email or password. Please check your invitation card.";
-    var card = document.getElementById('loginCard');
-    card.classList.remove('shake');
-    void card.offsetWidth;
-    card.classList.add('shake');
-    return;
-  }
-
-  // ── Populate every personalised element ──────────────────────────
-  errorEl.textContent = '';
-
-  // Hero
+// Shared: personalise the site for a matched guest, then reveal it.
+function loginWithGuest(guest){
+  document.getElementById('errorMsg').textContent = '';
+  document.getElementById('refError').textContent = '';
   document.getElementById('heroNamedTo').textContent = guest.namedTo;
-
-  // Welcome
   document.getElementById('welcomeText').textContent = guest.welcomeText;
-
-  // Personal letter
   document.getElementById('letterSalutation').textContent   = guest.salutation;
   document.getElementById('letterBody').textContent         = guest.letterBody;
   document.getElementById('letterInviteType').textContent   = guest.inviteTypeLabel;
   document.getElementById('letterExtra').textContent        = guest.letterExtra;
-
-  // Schedule subtitle + highlighted row
   document.getElementById('scheduleNote').textContent = guest.scheduleNote;
   buildSchedule(guest.arrivalHighlight);
-
-  // RSVP pre-fill
   document.getElementById('rsvpName').value  = guest.name;
   document.getElementById('rsvpEmail').value = guest.email;
 
-  // ── Animate envelope away, reveal site ───────────────────────────
   var wrap = document.getElementById('envelopeWrap');
   var gate = document.getElementById('gate');
   wrap.classList.add('rising');
@@ -728,8 +815,109 @@ function attemptLogin() {
   }, 700);
 }
 
-document.getElementById('emailInput').addEventListener('keydown',    function(e){ if(e.key==='Enter') attemptLogin(); });
+// Login by name + password
+function attemptLogin() {
+  var nameVal = document.getElementById('nameInput').value.trim().toLowerCase();
+  var passVal  = document.getElementById('passwordInput').value.trim();
+  var errorEl  = document.getElementById('errorMsg');
+
+  var guest = null;
+  for (var i = 0; i < GUESTS.length; i++) {
+    if (GUESTS[i].name.toLowerCase() === nameVal && GUESTS[i].password === passVal) {
+      guest = GUESTS[i]; break;
+    }
+  }
+
+  if (!guest) {
+    errorEl.textContent = "Incorrect name or password. Please check your invitation card.";
+    shakeCard();
+    return;
+  }
+  loginWithGuest(guest);
+}
+
+// Login by individual reference code (the QR fallback)
+function attemptRefLogin() {
+  var code    = normaliseRef(document.getElementById('refInput').value);
+  var errorEl = document.getElementById('refError');
+
+  if (!code) { errorEl.textContent = "Please enter your reference code."; return; }
+
+  var guest = null;
+  for (var i = 0; i < GUESTS.length; i++) {
+    if (GUESTS[i].ref && normaliseRef(GUESTS[i].ref) === code) { guest = GUESTS[i]; break; }
+  }
+
+  if (!guest) {
+    errorEl.textContent = "We don't recognise that reference code. Please check your invitation.";
+    shakeCard();
+    return;
+  }
+  loginWithGuest(guest);
+}
+
+document.getElementById('nameInput').addEventListener('keydown',    function(e){ if(e.key==='Enter') attemptLogin(); });
 document.getElementById('passwordInput').addEventListener('keydown', function(e){ if(e.key==='Enter') attemptLogin(); });
+document.getElementById('refInput').addEventListener('keydown',      function(e){ if(e.key==='Enter') attemptRefLogin(); });
+
+// ════════════════════════════════════════════════════════════════════
+// FORGOT PASSWORD
+// ════════════════════════════════════════════════════════════════════
+function toggleForgot() {
+  var panel = document.getElementById('forgotPanel');
+  panel.classList.toggle('open');
+  if (panel.classList.contains('open')) {
+    setTimeout(function(){ document.getElementById('forgotName').focus(); }, 200);
+  }
+}
+
+function sendPasswordReminder() {
+  var nameVal = document.getElementById('forgotName').value.trim().toLowerCase();
+  var msgEl    = document.getElementById('forgotMsg');
+  msgEl.classList.remove('error');
+
+  if (!nameVal) {
+    msgEl.classList.add('error');
+    msgEl.textContent = "Please enter your name first.";
+    return;
+  }
+
+  var guest = null;
+  for (var i = 0; i < GUESTS.length; i++) {
+    if (GUESTS[i].name.toLowerCase() === nameVal) { guest = GUESTS[i]; break; }
+  }
+
+  if (!guest) {
+    msgEl.classList.add('error');
+    msgEl.textContent = "We couldn't find that name on our guest list. Please check it matches your invitation card.";
+    return;
+  }
+
+  // The password is ONLY ever sent by email — it is never shown on screen.
+  if (!emailjsReady) {
+    msgEl.classList.add('error');
+    msgEl.textContent = "Sorry, we're unable to send your password right now. Please contact Caitriona & Steven.";
+    return;
+  }
+
+  // Send this specific guest's password to their own email address only.
+  var btn = document.querySelector('.btn-forgot');
+  if (btn) btn.disabled = true;
+  msgEl.textContent = "Sending…";
+
+  emailjs.send(EMAILJS_CONFIG.serviceId, EMAILJS_CONFIG.templateId, {
+    to_email:   guest.email,    // recipient — locked to the matched guest
+    guest_name: guest.name,
+    password:   guest.password
+  }).then(function () {
+    if (btn) btn.disabled = false;
+    msgEl.textContent = "Done — your password is on its way to " + guest.email + ". Please check your inbox (and your spam folder).";
+  }, function () {
+    if (btn) btn.disabled = false;
+    msgEl.classList.add('error');
+    msgEl.textContent = "Sorry, we couldn't send the email just now. Please try again in a moment.";
+  });
+}
 
 // ════════════════════════════════════════════════════════════════════
 // SCHEDULE BUILDER
@@ -748,8 +936,6 @@ function buildSchedule(highlightIndex) {
     grid.appendChild(div);
   });
 }
-
-// Build with no highlight initially (will be rebuilt on login)
 buildSchedule(-1);
 
 // ════════════════════════════════════════════════════════════════════
@@ -827,6 +1013,57 @@ window.addEventListener('scroll', function(){
 // HERO IMAGE
 // ════════════════════════════════════════════════════════════════════
 document.getElementById('heroImg').src = px("https://rivervalebarn.co.uk/core/../static/uploads/sites/18/2025/10/2025-08-12-Senior-Mac-Photography_VenueDroneShots1.webp");
+
+// ════════════════════════════════════════════════════════════════════
+// QR AUTO-LOGIN
+// A guest's personal QR code opens a link like:
+//     https://your-site/#ref=CS-9F2K
+// This reads the code, opens their invitation, then immediately wipes it
+// out of the address bar so nothing personal is left in browser history.
+// (A legacy #name=..&pw=.. link is still accepted as a fallback.)
+// ════════════════════════════════════════════════════════════════════
+(function autoLoginFromHash(){
+  var raw = (location.hash || '').replace(/^#/, '');
+  if (!raw) return;
+
+  var params = {};
+  raw.split('&').forEach(function(pair){
+    var kv = pair.split('=');
+    var key = decodeURIComponent((kv[0] || '').replace(/\+/g, ' '));
+    var val = decodeURIComponent((kv[1] || '').replace(/\+/g, ' '));
+    if (key) params[key] = val;
+  });
+
+  // Wipe the hash immediately, whatever it contained.
+  function wipeHash(){
+    try { history.replaceState(null, '', location.pathname + location.search); }
+    catch (e) { location.hash = ''; }
+  }
+
+  // Preferred: individual reference code
+  var ref = params.ref || params.r;
+  if (ref) {
+    var code = normaliseRef(ref);
+    var g = null;
+    for (var i = 0; i < GUESTS.length; i++) {
+      if (GUESTS[i].ref && normaliseRef(GUESTS[i].ref) === code) { g = GUESTS[i]; break; }
+    }
+    wipeHash();
+    if (g) loginWithGuest(g);
+    else document.getElementById('refInput').value = ref; // let them try manually
+    return;
+  }
+
+  // Fallback: name + password link
+  var name = params.name || params.n;
+  var pw   = params.pw   || params.p;
+  if (!name || !pw) return;
+
+  document.getElementById('nameInput').value     = name;
+  document.getElementById('passwordInput').value = pw;
+  wipeHash();
+  attemptLogin();
+})();
 </script>
 </body>
 </html>
