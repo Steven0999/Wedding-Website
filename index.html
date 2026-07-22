@@ -429,6 +429,8 @@
   .sched-item.highlight { background: var(--stone-50); padding: 1rem 1rem 1rem; margin: -1rem; border-top: 2px solid var(--black); }
   .sched-item.highlight .sched-time { color: var(--black); }
   .sched-you { font-size: 0.5rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--stone-400); margin-top: 0.3rem; }
+  .sched-item.dim { opacity: 0.36; }
+  .sched-tag { font-size: 0.5rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--stone-400); margin-top: 0.3rem; }
 
   /* REGISTRY */
   .registry-section { background: var(--stone-50); }
@@ -799,7 +801,7 @@ function loginWithGuest(guest){
   document.getElementById('letterInviteType').textContent   = guest.inviteTypeLabel;
   document.getElementById('letterExtra').textContent        = guest.letterExtra;
   document.getElementById('scheduleNote').textContent = guest.scheduleNote;
-  buildSchedule(guest.arrivalHighlight);
+  buildSchedule(guest.arrivalHighlight, guest.inviteType);
   document.getElementById('rsvpName').value  = guest.name;
   document.getElementById('rsvpEmail').value = guest.email;
 
@@ -922,17 +924,20 @@ function sendPasswordReminder() {
 // ════════════════════════════════════════════════════════════════════
 // SCHEDULE BUILDER
 // ════════════════════════════════════════════════════════════════════
-function buildSchedule(highlightIndex) {
+function buildSchedule(highlightIndex, inviteType) {
+  var evening = inviteType === 'evening';
   var grid = document.getElementById('scheduleGrid');
   grid.innerHTML = '';
   SCHEDULE.forEach(function(row, i) {
+    var isDim = evening && i < highlightIndex; // the earlier, full-day-only parts
     var div = document.createElement('div');
-    div.className = 'sched-item' + (i === highlightIndex ? ' highlight' : '');
+    div.className = 'sched-item' + (i === highlightIndex ? ' highlight' : '') + (isDim ? ' dim' : '');
     div.innerHTML =
       '<p class="sched-time">' + row.time + '</p>' +
       '<h3 class="sched-title">' + row.title + '</h3>' +
       '<p class="sched-desc">' + row.desc + '</p>' +
-      (i === highlightIndex ? '<p class="sched-you">← Your arrival time</p>' : '');
+      (i === highlightIndex ? '<p class="sched-you">\u2190 You join here</p>' : '') +
+      (isDim ? '<p class="sched-tag">Full-day guests</p>' : '');
     grid.appendChild(div);
   });
 }
@@ -1067,4 +1072,3 @@ document.getElementById('heroImg').src = px("https://rivervalebarn.co.uk/core/..
 </script>
 </body>
 </html>
-
