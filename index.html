@@ -144,6 +144,13 @@
   }
   .field input:focus { border-color: var(--black); }
   .field input::placeholder { color: var(--stone-300); }
+  .field select {
+    width: 100%; border: none; border-bottom: 1px solid var(--stone-200);
+    padding: 0.5rem 0; font-family: 'Lato', sans-serif; font-size: 0.9rem; font-weight: 300;
+    background: transparent; outline: none; color: var(--black);
+    transition: border-color 0.2s; cursor: pointer; -webkit-appearance: none; appearance: none;
+  }
+  .field select:focus { border-color: var(--black); }
 
   .toggle-pw {
     position: absolute; right: 0; bottom: 0.5rem;
@@ -442,6 +449,24 @@
   .btn-outline { padding: 1rem 2.5rem; background: transparent; color: var(--black); border: 1px solid var(--black); cursor: pointer; font-family: 'Lato', sans-serif; font-size: 0.625rem; letter-spacing: 0.3em; text-transform: uppercase; transition: background 0.2s; }
   .btn-outline:hover { background: var(--stone-100); }
 
+  /* ACCOMMODATION */
+  .stay-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1.5rem; max-width: 72rem; margin: 0 auto; text-align: left; }
+  .stay-card { border: 1px solid var(--stone-200); padding: 2rem 1.75rem; display: flex; flex-direction: column; position: relative; }
+  .stay-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: var(--black); }
+  .stay-dist { font-size: 0.5rem; letter-spacing: 0.25em; text-transform: uppercase; color: var(--stone-400); margin-bottom: 0.6rem; }
+  .stay-name { font-family: 'Playfair Display', serif; font-size: 1.2rem; margin-bottom: 0.5rem; line-height: 1.2; }
+  .stay-addr { font-size: 0.72rem; color: var(--stone-500); font-weight: 300; line-height: 1.6; margin-bottom: 0.85rem; }
+  .stay-note { font-size: 0.8rem; color: var(--stone-600); font-weight: 300; line-height: 1.7; margin-bottom: 1.1rem; flex: 1; }
+  .stay-discount { border: 1px solid var(--black); padding: 0.55rem 0.75rem; font-size: 0.55rem; letter-spacing: 0.08em; text-transform: uppercase; line-height: 1.5; margin-bottom: 1.1rem; }
+  .stay-discount strong { font-family: 'Playfair Display', serif; letter-spacing: 0.12em; }
+  .stay-link { align-self: flex-start; padding: 0.75rem 1.75rem; background: var(--black); color: #fff; text-decoration: none; font-size: 0.58rem; letter-spacing: 0.25em; text-transform: uppercase; transition: background 0.2s; }
+  .stay-link:hover { background: var(--stone-900); }
+  .stay-travel { max-width: 72rem; margin: 2.5rem auto 0; border: 1px solid var(--stone-200); background: var(--stone-50); padding: 1.75rem 2rem; text-align: left; }
+  .stay-travel h3 { font-family: 'Playfair Display', serif; font-size: 1.05rem; margin-bottom: 0.85rem; }
+  .stay-travel p { font-size: 0.82rem; color: var(--stone-600); font-weight: 300; line-height: 1.8; margin-bottom: 0.7rem; }
+  .stay-travel p:last-child { margin-bottom: 0; }
+  .stay-travel a { color: var(--black); text-underline-offset: 2px; }
+
   /* RSVP */
   .rsvp-box { border: 1px solid var(--stone-100); padding: 4rem; max-width: 40rem; margin: 0 auto; }
   .rsvp-sub { font-size: 0.6rem; letter-spacing: 0.3em; text-transform: uppercase; color: var(--stone-400); font-weight: 700; }
@@ -459,6 +484,11 @@
   .rsvp-textarea::placeholder { color: var(--stone-200); }
   .btn-send { width: 100%; padding: 1.5rem; background: var(--black); color: #fff; border: none; cursor: pointer; font-family: 'Lato', sans-serif; font-size: 0.625rem; letter-spacing: 0.5em; text-transform: uppercase; transition: background 0.2s; }
   .btn-send:hover { background: var(--stone-900); }
+  .btn-accept.sel, .btn-decline.sel { outline: 2px solid var(--black); outline-offset: 2px; }
+  .btn-decline.sel { color: var(--black); border-color: var(--black); }
+  .btn-accept.unsel, .btn-decline.unsel { opacity: 0.4; }
+  .rsvp-msg { text-align: center; font-size: 0.72rem; font-weight: 300; line-height: 1.5; color: var(--stone-500); margin-top: 1.25rem; min-height: 1rem; }
+  .rsvp-msg.error { color: #f87171; }
 
   /* FOOTER */
   footer { padding: 6rem 1.5rem; text-align: center; border-top: 1px solid var(--stone-50); }
@@ -481,64 +511,76 @@
   <div class="envelope-wrap" id="envelopeWrap">
     <div class="envelope-card" id="loginCard">
 
-      <div class="seal">C&amp;S</div>
-      <h2 class="login-title">You're Invited</h2>
-      <p class="login-sub">Caitriona &amp; Steven · 25th March 2027</p>
-      <div class="login-divider"></div>
-      <p class="login-hint">
-        This invitation is personal to you.<br>
-        Scan your QR code, or enter the invitation code from your card below.
-      </p>
+      <div id="loginStep">
+        <div class="seal">C&amp;S</div>
+        <h2 class="login-title">You're Invited</h2>
+        <p class="login-sub">Caitriona &amp; Steven · 25th March 2027</p>
+        <div class="login-divider"></div>
+        <p class="login-hint">
+          This invitation is personal to you.<br>
+          Scan your QR code, or enter the invitation code from your card below.
+        </p>
 
-      <!-- ── INVITATION CODE (primary entry) ── -->
-      <div class="field">
-        <label>Invitation Code</label>
-        <div class="field-row">
-          <input type="text" id="refInput" placeholder="e.g. CS-9F2K" autocomplete="off" />
-        </div>
-      </div>
-      <p class="error-msg" id="refError"></p>
-      <button class="btn-open" onclick="attemptRefLogin()">Open My Invitation</button>
-
-      <!-- ── NAME + PASSWORD (secondary) ── -->
-      <div class="alt-divider"><span>or use your name</span></div>
-      <div class="field">
-        <label>Your Name</label>
-        <div class="field-row">
-          <input type="text" id="nameInput" placeholder="As written on your invitation" autocomplete="off" />
-        </div>
-      </div>
-
-      <div class="field">
-        <label>Your Password</label>
-        <div class="field-row">
-          <input type="password" id="passwordInput" placeholder="From your invitation card" autocomplete="off" />
-          <button class="toggle-pw" id="togglePw" onclick="togglePassword()">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
-          </button>
-        </div>
-      </div>
-
-      <p class="error-msg" id="errorMsg"></p>
-
-      <button class="btn-code" onclick="attemptLogin()">Sign In With Name</button>
-
-      <!-- ── FORGOT PASSWORD ──────────────────────────────── -->
-      <div class="forgot-wrap">
-        <button class="forgot-link" onclick="toggleForgot()">Forgotten your password?</button>
-        <div class="forgot-panel" id="forgotPanel">
-          <p class="forgot-hint">
-            Enter your name and we'll email your password to the
-            address we have on file for you.
-          </p>
-          <div class="field">
-            <label>Your Name</label>
-            <div class="field-row">
-              <input type="text" id="forgotName" placeholder="As written on your invitation" autocomplete="off" />
-            </div>
+        <!-- ── INVITATION CODE (primary entry) ── -->
+        <div class="field">
+          <label>Invitation Code</label>
+          <div class="field-row">
+            <input type="text" id="refInput" placeholder="e.g. CS-9F2K" autocomplete="off" />
           </div>
-          <p class="forgot-msg" id="forgotMsg"></p>
-          <button class="btn-forgot" onclick="sendPasswordReminder()">Email Me My Password</button>
+        </div>
+        <p class="error-msg" id="refError"></p>
+        <button class="btn-open" onclick="attemptRefLogin()">Open My Invitation</button>
+
+        <!-- ── NEED HELP / FORGOT CODE ── -->
+        <div class="forgot-wrap">
+          <button class="forgot-link" onclick="showHelp()">Forgotten your code? Get in touch</button>
+        </div>
+      </div>
+
+      <!-- ── HELP REQUEST FORM (opens when a guest needs a hand) ── -->
+      <div id="helpStep" style="display:none">
+        <div class="seal">C&amp;S</div>
+        <h2 class="login-title">Need A Hand?</h2>
+        <p class="login-sub">Caitriona &amp; Steven · 25th March 2027</p>
+        <div class="login-divider"></div>
+        <p class="login-hint">
+          Fill this in and it'll come straight to us — we'll get back to you as soon as we can.
+        </p>
+
+        <div class="field">
+          <label>Full Name</label>
+          <div class="field-row">
+            <input type="text" id="helpName" placeholder="Your full name" autocomplete="off" />
+          </div>
+        </div>
+        <div class="field">
+          <label>Relation to the Bride or Groom</label>
+          <div class="field-row">
+            <input type="text" id="helpRelation" placeholder="e.g. Steven's cousin, Caitriona's friend" autocomplete="off" />
+          </div>
+        </div>
+        <div class="field">
+          <label>Reason for getting in touch</label>
+          <div class="field-row">
+            <select id="helpReason">
+              <option value="Forgot code">Forgot my code</option>
+              <option value="Didn't receive an invitation">Didn't receive an invitation</option>
+              <option value="Question about the day">Question about the day</option>
+              <option value="Trouble opening my invitation">Trouble opening my invitation</option>
+              <option value="Other">Something else</option>
+            </select>
+          </div>
+        </div>
+        <div class="field">
+          <label>Anything else? (optional)</label>
+          <div class="field-row">
+            <input type="text" id="helpMessage" placeholder="Add any details that would help" autocomplete="off" />
+          </div>
+        </div>
+        <p class="error-msg" id="helpMsg"></p>
+        <button class="btn-open" onclick="submitHelpRequest()">Send To Caitriona &amp; Steven</button>
+        <div class="forgot-wrap" style="border-top:none;padding-top:0.85rem;margin-top:0.85rem">
+          <button class="forgot-link" onclick="showLogin()">Back</button>
         </div>
       </div>
 
@@ -558,6 +600,7 @@
       <a href="#your-invitation">Your Invitation</a>
       <a href="#venue">Venue</a>
       <a href="#schedule">Schedule</a>
+      <a href="#stay">Stay</a>
       <a href="#registry">Registry</a>
       <a href="#rsvp">RSVP</a>
     </div>
@@ -628,6 +671,70 @@
     </div>
   </section>
 
+  <!-- ACCOMMODATION -->
+  <section id="stay">
+    <div class="section-inner" style="max-width:72rem">
+      <h2 class="section-title">Where To Stay</h2>
+      <p class="body-text" style="margin-bottom:3rem">
+        A few places nearby where you can book a room for the night. Rivervale Barn is at
+        Mill Lane, Yateley GU46 7SS, and every option below is a short drive away. Rooms
+        near the venue can get booked up around wedding dates, so we'd recommend reserving
+        yours as early as you can.
+      </p>
+    </div>
+    <div class="stay-grid">
+
+      <div class="stay-card">
+        <p class="stay-dist">On site · at the venue</p>
+        <h3 class="stay-name">Rivervale Lodge</h3>
+        <p class="stay-addr">Mill Lane, Yateley, Hampshire GU46 7SS</p>
+        <p class="stay-note">Ten ensuite bedrooms and a breakfast room right at Rivervale Barn — the easiest place to stay. Rooms are limited and arranged through us, so please check with Caitriona &amp; Steven before booking.</p>
+        <a class="stay-link" href="https://www.rivervale-lodge.co.uk/" target="_blank" rel="noopener">Visit Website</a>
+      </div>
+
+      <div class="stay-card">
+        <p class="stay-dist">Approx. 5 min drive</p>
+        <h3 class="stay-name">The Casa Hotel</h3>
+        <p class="stay-addr">Handford Lane, Yateley, Hampshire GU46 6BT</p>
+        <p class="stay-note">The closest hotel to the barn and a long-time favourite with Rivervale guests, with its own Italian restaurant on site. Very handy for taxis to and from the venue.</p>
+        <a class="stay-link" href="https://www.thecasahoteluk.com/" target="_blank" rel="noopener">Book / Enquire</a>
+      </div>
+
+      <div class="stay-card">
+        <p class="stay-dist">Approx. 5 min drive</p>
+        <h3 class="stay-name">Warbrook House Hotel</h3>
+        <p class="stay-addr">The Street, Eversley, Hampshire RG27 0PL</p>
+        <p class="stay-note">A Grade II listed country house set in 121 acres of gardens — a characterful place to stay just a few minutes from the venue.</p>
+        <a class="stay-link" href="https://www.warbrookhouse.com/" target="_blank" rel="noopener">Book / Enquire</a>
+      </div>
+
+      <div class="stay-card">
+        <p class="stay-dist">Approx. 15 min drive</p>
+        <h3 class="stay-name">DoubleTree by Hilton St Anne's Manor</h3>
+        <p class="stay-addr">London Road, Wokingham, Berkshire RG40 1ST</p>
+        <p class="stay-note">A country-house hotel with a spa, indoor pool and restaurant, set in 25 acres of grounds.</p>
+        <p class="stay-discount">Rivervale Barn wedding rate: quote <strong>“RIVER”</strong> for 10% off. Please mention the wedding and confirm the rate when you book.</p>
+        <a class="stay-link" href="https://www.hilton.com/en/hotels/brasadi-doubletree-st-annes-manor/" target="_blank" rel="noopener">Book Direct</a>
+      </div>
+
+      <div class="stay-card">
+        <p class="stay-dist">Approx. 20 min drive</p>
+        <h3 class="stay-name">Holiday Inn Farnborough</h3>
+        <p class="stay-addr">Lynchford Road, Farnborough, Hampshire GU14 6AZ</p>
+        <p class="stay-note">A comfortable, well-rated chain hotel with free parking and a restaurant — a reliable option a little further out.</p>
+        <a class="stay-link" href="https://www.ihg.com/holidayinn/hotels/us/en/farnborough/fabht/hoteldetail" target="_blank" rel="noopener">Book / Enquire</a>
+      </div>
+
+    </div>
+
+    <div class="stay-travel">
+      <h3>Getting home, parking &amp; trains</h3>
+      <p><strong>Taxis:</strong> the bar closes at 11:30 pm, so if you're heading off that night we'd suggest pre-booking a taxi for around then. Rivervale Barn keeps a list of preferred local taxi firms on their <a href="https://rivervalebarn.co.uk/contact/" target="_blank" rel="noopener">contact page</a> — a reliable local option is Your Local Car (01252 674646). It's always worth booking in advance on a wedding night.</p>
+      <p><strong>Driving:</strong> you're welcome to leave your car in the venue car park overnight (at your own risk) and collect it by 10:00 am the next morning — the gates open at 8:00 am.</p>
+      <p><strong>By train:</strong> the nearest stations are Fleet (about 10 minutes by taxi, with fast trains from London Waterloo) and Sandhurst (about 3 minutes by taxi).</p>
+    </div>
+  </section>
+
   <!-- REGISTRY -->
   <section id="registry" class="registry-section">
     <div class="section-inner">
@@ -662,11 +769,12 @@
         <input type="email" class="rsvp-input" id="rsvpEmail" placeholder="Email Address" />
       </div>
       <div class="rsvp-accept-row" style="margin-bottom:2rem">
-        <button class="btn-accept">Joyfully Accepts</button>
-        <button class="btn-decline">Regretfully Declines</button>
+        <button class="btn-accept" id="rsvpAccept" onclick="setRsvp('Joyfully Accepts')">Joyfully Accepts</button>
+        <button class="btn-decline" id="rsvpDecline" onclick="setRsvp('Regretfully Declines')">Regretfully Declines</button>
       </div>
-      <textarea class="rsvp-textarea" placeholder="Dietary requirements or anything else we should know" style="margin-bottom:2rem"></textarea>
-      <button class="btn-send">Send My Response</button>
+      <textarea class="rsvp-textarea" id="rsvpDietary" placeholder="Dietary requirements or anything else we should know" style="margin-bottom:1rem"></textarea>
+      <button class="btn-send" onclick="sendRsvp()">Send My Response</button>
+      <p class="rsvp-msg" id="rsvpMsg"></p>
     </div>
   </section>
 
@@ -714,19 +822,42 @@ var GUESTS = [
     letterExtra: "Please join us from 13:30 at the Ceremony Barn, where your seat will be waiting for you. We have planned every detail with you in mind, and we are so excited to celebrate together.",
     arrivalHighlight: 0,
     scheduleNote: "Your full day begins at 13:30 — your seat will be reserved in the Ceremony Barn"
+  },
+  {
+    email:    "evening.guest@example.com",
+    password: "CS-8ML2",
+    ref:      "CS-8ML2",
+    name:     "Evening Guest",
+    inviteType: "evening",
+    namedTo: "This invitation belongs to Evening Guest",
+    welcomeText: "Evening Guest, we're so happy you'll be joining us to celebrate in the evening. We've put this invitation together just for you, and we can't wait to raise a glass and dance the night away with you once the evening celebrations begin.",
+    salutation: "Dear Evening Guest,",
+    letterBody: "We would be delighted for you to join us for the evening reception as we celebrate our marriage. You are one of the people we most want to party with, and having you there to dance, laugh and toast with us in the evening would mean the world. The doors open at 20:00 and we can't wait to see you.",
+    inviteTypeLabel: "Reception / Evening Guest — Evening Reception & Celebrations",
+    letterExtra: "Please join us from 20:00 for the evening reception — an evening of drinks, dancing and celebration. We can't wait to see you there.",
+    arrivalHighlight: 4,
+    scheduleNote: "Your evening begins at 20:00 — join us for the reception and celebrations"
   }
 ];
 
 // ════════════════════════════════════════════════════════════════════
-// EMAILJS CONFIG  ←←←  EDIT THESE THREE VALUES
+// EMAILJS CONFIG  ←←←  EDIT THESE VALUES
 // Sign up free at https://www.emailjs.com, then paste your IDs here.
-// Create a template with variables: {{guest_name}}, {{password}}, {{to_email}}
-// and set the template's "To Email" field to  {{to_email}}.
+//   • Help / request template — variables: {{full_name}}, {{relation}},
+//                                {{reason}}, {{message}}, {{to_email}}
+//   • RSVP template — variables: {{guest_name}}, {{guest_email}}, {{response}},
+//                                {{dietary}}, {{invite_type}}, {{to_email}}
+// Set each template's "To Email" field to  {{to_email}}.
+// (Until these are filled in, both still work: the guest's email app opens
+//  pre-addressed to you instead.)
 // ════════════════════════════════════════════════════════════════════
+var CONTACT_RECIPIENT = "admin@vaughanwedding.co.uk"; // "Need a hand?" requests go here
+var RSVP_RECIPIENT    = "steven.vaughanrr@hotmail.co.uk"; // RSVPs go here
 var EMAILJS_CONFIG = {
-  publicKey:  "YOUR_PUBLIC_KEY",
-  serviceId:  "YOUR_SERVICE_ID",
-  templateId: "YOUR_TEMPLATE_ID"
+  publicKey:         "YOUR_PUBLIC_KEY",
+  serviceId:         "YOUR_SERVICE_ID",
+  contactTemplateId: "YOUR_CONTACT_TEMPLATE_ID", // the "Need a hand?" request template
+  rsvpTemplateId:    "YOUR_RSVP_TEMPLATE_ID"      // the RSVP template
 };
 
 var emailjsReady = false;
@@ -774,13 +905,6 @@ var SLIDES = [
 // ════════════════════════════════════════════════════════════════════
 // LOGIN
 // ════════════════════════════════════════════════════════════════════
-var pwVisible = false;
-
-function togglePassword() {
-  pwVisible = !pwVisible;
-  document.getElementById('passwordInput').type = pwVisible ? 'text' : 'password';
-}
-
 function normaliseRef(s){ return (s || '').toUpperCase().replace(/[^A-Z0-9]/g, ''); }
 
 function shakeCard(){
@@ -790,21 +914,10 @@ function shakeCard(){
   card.classList.add('shake');
 }
 
-// Shared: personalise the site for a matched guest, then reveal it.
-function loginWithGuest(guest){
-  document.getElementById('errorMsg').textContent = '';
-  document.getElementById('refError').textContent = '';
-  document.getElementById('heroNamedTo').textContent = guest.namedTo;
-  document.getElementById('welcomeText').textContent = guest.welcomeText;
-  document.getElementById('letterSalutation').textContent   = guest.salutation;
-  document.getElementById('letterBody').textContent         = guest.letterBody;
-  document.getElementById('letterInviteType').textContent   = guest.inviteTypeLabel;
-  document.getElementById('letterExtra').textContent        = guest.letterExtra;
-  document.getElementById('scheduleNote').textContent = guest.scheduleNote;
-  buildSchedule(guest.arrivalHighlight, guest.inviteType);
-  document.getElementById('rsvpName').value  = guest.name;
-  document.getElementById('rsvpEmail').value = guest.email;
+var currentGuest = null;
 
+// Reveal the wedding site (envelope animation).
+function revealSite(){
   var wrap = document.getElementById('envelopeWrap');
   var gate = document.getElementById('gate');
   wrap.classList.add('rising');
@@ -817,33 +930,29 @@ function loginWithGuest(guest){
   }, 700);
 }
 
-// Login by name + password
-function attemptLogin() {
-  var nameVal = document.getElementById('nameInput').value.trim().toLowerCase();
-  var passVal  = document.getElementById('passwordInput').value.trim();
-  var errorEl  = document.getElementById('errorMsg');
-
-  var guest = null;
-  for (var i = 0; i < GUESTS.length; i++) {
-    if (GUESTS[i].name.toLowerCase() === nameVal && GUESTS[i].password === passVal) {
-      guest = GUESTS[i]; break;
-    }
-  }
-
-  if (!guest) {
-    errorEl.textContent = "Incorrect name or password. Please check your invitation card.";
-    shakeCard();
-    return;
-  }
-  loginWithGuest(guest);
+// Personalise the site for a matched guest, then reveal it.
+function loginWithGuest(guest){
+  currentGuest = guest;
+  document.getElementById('refError').textContent = '';
+  document.getElementById('heroNamedTo').textContent = guest.namedTo;
+  document.getElementById('welcomeText').textContent = guest.welcomeText;
+  document.getElementById('letterSalutation').textContent   = guest.salutation;
+  document.getElementById('letterBody').textContent         = guest.letterBody;
+  document.getElementById('letterInviteType').textContent   = guest.inviteTypeLabel;
+  document.getElementById('letterExtra').textContent        = guest.letterExtra;
+  document.getElementById('scheduleNote').textContent = guest.scheduleNote;
+  buildSchedule(guest.arrivalHighlight, guest.inviteType);
+  document.getElementById('rsvpName').value  = guest.name;
+  document.getElementById('rsvpEmail').value = guest.email || '';
+  revealSite();
 }
 
-// Login by individual reference code (the QR fallback)
+// Login by individual invitation code (also used by the QR scan)
 function attemptRefLogin() {
   var code    = normaliseRef(document.getElementById('refInput').value);
   var errorEl = document.getElementById('refError');
 
-  if (!code) { errorEl.textContent = "Please enter your reference code."; return; }
+  if (!code) { errorEl.textContent = "Please enter your invitation code."; return; }
 
   var guest = null;
   for (var i = 0; i < GUESTS.length; i++) {
@@ -851,74 +960,148 @@ function attemptRefLogin() {
   }
 
   if (!guest) {
-    errorEl.textContent = "We don't recognise that reference code. Please check your invitation.";
+    errorEl.textContent = "We don't recognise that invitation code. Please check your invitation.";
     shakeCard();
     return;
   }
   loginWithGuest(guest);
 }
 
-document.getElementById('nameInput').addEventListener('keydown',    function(e){ if(e.key==='Enter') attemptLogin(); });
-document.getElementById('passwordInput').addEventListener('keydown', function(e){ if(e.key==='Enter') attemptLogin(); });
-document.getElementById('refInput').addEventListener('keydown',      function(e){ if(e.key==='Enter') attemptRefLogin(); });
+document.getElementById('refInput').addEventListener('keydown', function(e){ if(e.key==='Enter') attemptRefLogin(); });
 
 // ════════════════════════════════════════════════════════════════════
-// FORGOT PASSWORD
+// NEED A HAND?  →  a request form emailed to CONTACT_RECIPIENT
 // ════════════════════════════════════════════════════════════════════
-function toggleForgot() {
-  var panel = document.getElementById('forgotPanel');
-  panel.classList.toggle('open');
-  if (panel.classList.contains('open')) {
-    setTimeout(function(){ document.getElementById('forgotName').focus(); }, 200);
-  }
+function showHelp(){
+  document.getElementById('loginStep').style.display = 'none';
+  document.getElementById('helpStep').style.display = 'block';
+  document.getElementById('helpMsg').textContent = '';
+  setTimeout(function(){ try { document.getElementById('helpName').focus(); } catch(e){} }, 150);
 }
 
-function sendPasswordReminder() {
-  var nameVal = document.getElementById('forgotName').value.trim().toLowerCase();
-  var msgEl    = document.getElementById('forgotMsg');
+function showLogin(){
+  document.getElementById('helpStep').style.display = 'none';
+  document.getElementById('loginStep').style.display = 'block';
+}
+
+function openHelpMailto(name, relation, reason, message){
+  var subject = "Wedding website — " + reason + " — " + name;
+  var body =
+    "Full name: " + name + "\n" +
+    "Relation to bride/groom: " + relation + "\n" +
+    "Reason: " + reason + "\n" +
+    "Message: " + (message || "—") + "\n";
+  window.location.href = "mailto:" + CONTACT_RECIPIENT +
+    "?subject=" + encodeURIComponent(subject) +
+    "&body=" + encodeURIComponent(body);
+}
+
+function submitHelpRequest(){
+  var name     = document.getElementById('helpName').value.trim();
+  var relation = document.getElementById('helpRelation').value.trim();
+  var reason   = document.getElementById('helpReason').value;
+  var message  = document.getElementById('helpMessage').value.trim();
+  var msgEl    = document.getElementById('helpMsg');
   msgEl.classList.remove('error');
 
-  if (!nameVal) {
-    msgEl.classList.add('error');
-    msgEl.textContent = "Please enter your name first.";
+  if (!name)     { msgEl.classList.add('error'); msgEl.textContent = "Please add your full name.";               return; }
+  if (!relation) { msgEl.classList.add('error'); msgEl.textContent = "Please tell us your relation to the bride or groom."; return; }
+
+  // Preferred: send straight to the couple via EmailJS.
+  if (emailjsReady && EMAILJS_CONFIG.contactTemplateId && EMAILJS_CONFIG.contactTemplateId.indexOf('YOUR_') !== 0) {
+    var btn = document.querySelector('#helpStep .btn-open');
+    if (btn) btn.disabled = true;
+    msgEl.textContent = "Sending…";
+    emailjs.send(EMAILJS_CONFIG.serviceId, EMAILJS_CONFIG.contactTemplateId, {
+      to_email:  CONTACT_RECIPIENT,
+      full_name: name,
+      relation:  relation,
+      reason:    reason,
+      message:   message || "—"
+    }).then(function(){
+      if (btn) btn.disabled = false;
+      msgEl.textContent = "Thank you — your message is on its way to Caitriona & Steven. They'll be in touch.";
+    }, function(){
+      if (btn) btn.disabled = false;
+      openHelpMailto(name, relation, reason, message);
+      msgEl.textContent = "Opening your email app so you can send this to us.";
+    });
     return;
   }
 
-  var guest = null;
-  for (var i = 0; i < GUESTS.length; i++) {
-    if (GUESTS[i].name.toLowerCase() === nameVal) { guest = GUESTS[i]; break; }
-  }
+  // Fallback (no EmailJS set up): open the guest's email app, pre-addressed to the couple.
+  openHelpMailto(name, relation, reason, message);
+  msgEl.textContent = "Your email app should open with your message ready to send to us.";
+}
 
-  if (!guest) {
-    msgEl.classList.add('error');
-    msgEl.textContent = "We couldn't find that name on our guest list. Please check it matches your invitation card.";
+// ════════════════════════════════════════════════════════════════════
+// RSVP  →  sent to RSVP_RECIPIENT
+// ════════════════════════════════════════════════════════════════════
+var rsvpResponse = null;
+
+function setRsvp(choice){
+  rsvpResponse = choice;
+  var a = document.getElementById('rsvpAccept');
+  var d = document.getElementById('rsvpDecline');
+  var acc = choice.indexOf('Accept') > -1;
+  a.classList.toggle('sel', acc);  a.classList.toggle('unsel', !acc);
+  d.classList.toggle('sel', !acc); d.classList.toggle('unsel', acc);
+  document.getElementById('rsvpMsg').textContent = '';
+}
+
+function openRsvpMailto(name, email, dietary, inviteType){
+  var subject = "Wedding RSVP — " + name;
+  var body =
+    "Name: " + name + "\n" +
+    "Email: " + email + "\n" +
+    "Response: " + rsvpResponse + "\n" +
+    "Invite: " + inviteType + "\n" +
+    "Dietary requirements / notes: " + dietary + "\n";
+  window.location.href = "mailto:" + RSVP_RECIPIENT +
+    "?subject=" + encodeURIComponent(subject) +
+    "&body=" + encodeURIComponent(body);
+}
+
+function sendRsvp(){
+  var name    = document.getElementById('rsvpName').value.trim();
+  var email   = document.getElementById('rsvpEmail').value.trim();
+  var dietary = document.getElementById('rsvpDietary').value.trim();
+  var msg     = document.getElementById('rsvpMsg');
+  msg.classList.remove('error');
+
+  if (!rsvpResponse) {
+    msg.classList.add('error');
+    msg.textContent = "Please choose 'Joyfully Accepts' or 'Regretfully Declines' first.";
     return;
   }
 
-  // The password is ONLY ever sent by email — it is never shown on screen.
-  if (!emailjsReady) {
-    msgEl.classList.add('error');
-    msgEl.textContent = "Sorry, we're unable to send your password right now. Please contact Caitriona & Steven.";
+  var inviteType  = currentGuest ? (currentGuest.inviteType === 'evening' ? 'Reception / Evening' : 'Full Day') : '';
+  var dietaryText = dietary || "None provided";
+
+  if (emailjsReady && EMAILJS_CONFIG.rsvpTemplateId && EMAILJS_CONFIG.rsvpTemplateId.indexOf('YOUR_') !== 0) {
+    var btn = document.querySelector('.btn-send');
+    if (btn) btn.disabled = true;
+    msg.textContent = "Sending…";
+    emailjs.send(EMAILJS_CONFIG.serviceId, EMAILJS_CONFIG.rsvpTemplateId, {
+      to_email:    RSVP_RECIPIENT,
+      guest_name:  name,
+      guest_email: email,
+      response:    rsvpResponse,
+      dietary:     dietaryText,
+      invite_type: inviteType
+    }).then(function(){
+      if (btn) btn.disabled = false;
+      msg.textContent = "Thank you — your response has been sent to Caitriona & Steven.";
+    }, function(){
+      if (btn) btn.disabled = false;
+      openRsvpMailto(name, email, dietaryText, inviteType);
+      msg.textContent = "Opening your email app so you can send your response to us.";
+    });
     return;
   }
 
-  // Send this specific guest's password to their own email address only.
-  var btn = document.querySelector('.btn-forgot');
-  if (btn) btn.disabled = true;
-  msgEl.textContent = "Sending…";
-
-  emailjs.send(EMAILJS_CONFIG.serviceId, EMAILJS_CONFIG.templateId, {
-    to_email:   guest.email,    // recipient — locked to the matched guest
-    guest_name: guest.name,
-    password:   guest.password
-  }).then(function () {
-    if (btn) btn.disabled = false;
-    msgEl.textContent = "Done — your password is on its way to " + guest.email + ". Please check your inbox (and your spam folder).";
-  }, function () {
-    if (btn) btn.disabled = false;
-    msgEl.classList.add('error');
-    msgEl.textContent = "Sorry, we couldn't send the email just now. Please try again in a moment.";
-  });
+  openRsvpMailto(name, email, dietaryText, inviteType);
+  msg.textContent = "Your email app should open with your response ready to send to us.";
 }
 
 // ════════════════════════════════════════════════════════════════════
@@ -929,15 +1112,14 @@ function buildSchedule(highlightIndex, inviteType) {
   var grid = document.getElementById('scheduleGrid');
   grid.innerHTML = '';
   SCHEDULE.forEach(function(row, i) {
-    var isDim = evening && i < highlightIndex; // the earlier, full-day-only parts
+    if (evening && i < highlightIndex) return; // evening guests only see the evening onwards
     var div = document.createElement('div');
-    div.className = 'sched-item' + (i === highlightIndex ? ' highlight' : '') + (isDim ? ' dim' : '');
+    div.className = 'sched-item' + (i === highlightIndex ? ' highlight' : '');
     div.innerHTML =
       '<p class="sched-time">' + row.time + '</p>' +
       '<h3 class="sched-title">' + row.title + '</h3>' +
       '<p class="sched-desc">' + row.desc + '</p>' +
-      (i === highlightIndex ? '<p class="sched-you">\u2190 You join here</p>' : '') +
-      (isDim ? '<p class="sched-tag">Full-day guests</p>' : '');
+      (i === highlightIndex ? '<p class="sched-you">\u2190 You join here</p>' : '');
     grid.appendChild(div);
   });
 }
@@ -1027,6 +1209,30 @@ document.getElementById('heroImg').src = px("https://rivervalebarn.co.uk/core/..
 // out of the address bar so nothing personal is left in browser history.
 // (A legacy #name=..&pw=.. link is still accepted as a fallback.)
 // ════════════════════════════════════════════════════════════════════
+// Build a full personalised guest from a compact self-contained payload
+// (type|code|name) carried by the QR — no pre-registration needed.
+function buildGuestFromParts(t, ref, name, email){
+  var full = t !== 'e';
+  return {
+    email: email || "",
+    ref: ref,
+    name: name,
+    inviteType: full ? "full-day" : "evening",
+    namedTo: "This invitation belongs to " + name,
+    welcomeText: full
+      ? name + ", having you with us on our wedding day means more than words can say. We've put this invitation together just for you, and we hope every moment is as special for you as it will be for us."
+      : name + ", we're so happy you'll be joining us to celebrate in the evening. We've put this invitation together just for you, and we can't wait to raise a glass and dance the night away with you once the evening celebrations begin.",
+    salutation: "Dear " + name + ",",
+    letterBody: full
+      ? "We are so thrilled to invite you to share in our wedding day. You are one of the people who means the most to us, and we wouldn't want to celebrate this milestone without you. From start to finish, we hope you feel how much your presence means."
+      : "We would be delighted for you to join us for the evening reception as we celebrate our marriage. You are one of the people we most want to party with, and having you there to dance, laugh and toast with us in the evening would mean the world. The doors open at 20:00 and we can't wait to see you.",
+    inviteTypeLabel: full ? "Full Day Guest — Ceremony, Wedding Breakfast & Evening" : "Reception / Evening Guest — Evening Reception & Celebrations",
+    letterExtra: full ? "Please do join us from 13:30 at the Ceremony Barn. We've arranged everything to make sure you have the most wonderful day, and we can't wait to see you there." : "Please join us from 20:00 for the evening reception — an evening of drinks, dancing and celebration. We can't wait to see you there.",
+    arrivalHighlight: full ? 0 : 4,
+    scheduleNote: full ? "Your full day begins at 13:30 — your seat will be reserved in the Ceremony Barn" : "Your evening begins at 20:00 — join us for the reception and celebrations"
+  };
+}
+
 (function autoLoginFromHash(){
   var raw = (location.hash || '').replace(/^#/, '');
   if (!raw) return;
@@ -1035,7 +1241,7 @@ document.getElementById('heroImg').src = px("https://rivervalebarn.co.uk/core/..
   raw.split('&').forEach(function(pair){
     var kv = pair.split('=');
     var key = decodeURIComponent((kv[0] || '').replace(/\+/g, ' '));
-    var val = decodeURIComponent((kv[1] || '').replace(/\+/g, ' '));
+    var val = decodeURIComponent((kv.slice(1).join('=') || '').replace(/\+/g, ' '));
     if (key) params[key] = val;
   });
 
@@ -1045,29 +1251,40 @@ document.getElementById('heroImg').src = px("https://rivervalebarn.co.uk/core/..
     catch (e) { location.hash = ''; }
   }
 
-  // Preferred: individual reference code
-  var ref = params.ref || params.r;
-  if (ref) {
-    var code = normaliseRef(ref);
-    var g = null;
-    for (var i = 0; i < GUESTS.length; i++) {
-      if (GUESTS[i].ref && normaliseRef(GUESTS[i].ref) === code) { g = GUESTS[i]; break; }
-    }
+  // Self-contained invite: #g=type|code|name  (works with no pre-registration).
+  // If that code also exists in our baked-in list, prefer the richer record.
+  var g = params.g;
+  if (g) {
     wipeHash();
-    if (g) loginWithGuest(g);
-    else document.getElementById('refInput').value = ref; // let them try manually
+    var parts = g.split('|');
+    var t = parts[0] || 'f';
+    var ref = parts[1] || '';
+    var name = parts[2] || 'Guest';
+    var email = parts[3] || '';
+    var found = null;
+    if (ref) {
+      var nc = normaliseRef(ref);
+      for (var i = 0; i < GUESTS.length; i++) {
+        if (GUESTS[i].ref && normaliseRef(GUESTS[i].ref) === nc) { found = GUESTS[i]; break; }
+      }
+    }
+    loginWithGuest(found || buildGuestFromParts(t, ref, name, email));
     return;
   }
 
-  // Fallback: name + password link
-  var name = params.name || params.n;
-  var pw   = params.pw   || params.p;
-  if (!name || !pw) return;
-
-  document.getElementById('nameInput').value     = name;
-  document.getElementById('passwordInput').value = pw;
-  wipeHash();
-  attemptLogin();
+  // Short code lookup (typed fallback, and legacy #ref= links)
+  var ref = params.ref || params.r;
+  if (ref) {
+    var code = normaliseRef(ref);
+    var gg = null;
+    for (var i = 0; i < GUESTS.length; i++) {
+      if (GUESTS[i].ref && normaliseRef(GUESTS[i].ref) === code) { gg = GUESTS[i]; break; }
+    }
+    wipeHash();
+    if (gg) loginWithGuest(gg);
+    else document.getElementById('refInput').value = ref; // let them try manually
+    return;
+  }
 })();
 </script>
 </body>
