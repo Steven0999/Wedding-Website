@@ -484,6 +484,11 @@
   .rsvp-textarea::placeholder { color: var(--stone-200); }
   .btn-send { width: 100%; padding: 1.5rem; background: var(--black); color: #fff; border: none; cursor: pointer; font-family: 'Lato', sans-serif; font-size: 0.625rem; letter-spacing: 0.5em; text-transform: uppercase; transition: background 0.2s; }
   .btn-send:hover { background: var(--stone-900); }
+  .rsvp-for { text-align: center; font-family: 'Playfair Display', serif; font-size: 1.15rem; margin-bottom: 2rem; color: var(--stone-600); }
+  .rsvp-for span { font-style: italic; color: var(--black); }
+  .rsvp-done-title { font-family: 'Playfair Display', serif; font-size: 1.5rem; line-height: 1.35; margin-bottom: 1.25rem; }
+  .rsvp-done-note { font-size: 0.85rem; color: var(--stone-500); font-weight: 300; line-height: 1.9; max-width: 30rem; margin: 0 auto; }
+  .rsvp-done-note a { color: var(--black); }
   .btn-accept.sel, .btn-decline.sel { outline: 2px solid var(--black); outline-offset: 2px; }
   .btn-decline.sel { color: var(--black); border-color: var(--black); }
   .btn-accept.unsel, .btn-decline.unsel { opacity: 0.4; }
@@ -517,23 +522,29 @@
         <p class="login-sub">Caitriona &amp; Steven · 25th March 2027</p>
         <div class="login-divider"></div>
         <p class="login-hint">
-         This invitation is personal to you.<br>
-          Scan your QR code, or enter the invitation code from your card below.
+          This invitation is personal to you.<br>
+          Scan your QR code, or enter your first name and surname below.
         </p>
 
-        <!-- ── INVITATION CODE (primary entry) ── -->
+        <!-- ── NAME ENTRY (primary) ── -->
         <div class="field">
-          <label>Invitation Code</label>
+          <label>First Name</label>
           <div class="field-row">
-            <input type="text" id="refInput" placeholder="Enter your personal code here" autocomplete="off" />
+            <input type="text" id="firstNameInput" placeholder="Your first name" autocomplete="off" />
           </div>
         </div>
-        <p class="error-msg" id="refError"></p>
-        <button class="btn-open" onclick="attemptRefLogin()">Open My Invitation</button>
+        <div class="field">
+          <label>Surname</label>
+          <div class="field-row">
+            <input type="text" id="surnameInput" placeholder="Your surname" autocomplete="off" />
+          </div>
+        </div>
+        <p class="error-msg" id="nameError"></p>
+        <button class="btn-open" onclick="attemptNameLogin()">Open My Invitation</button>
 
-        <!-- ── NEED HELP / FORGOT CODE ── -->
+        <!-- ── NEED HELP ── -->
         <div class="forgot-wrap">
-          <button class="forgot-link" onclick="showHelp()">Forgotten your code? Get in touch</button>
+          <button class="forgot-link" onclick="showHelp()">Can't find your invitation? Get in touch</button>
         </div>
       </div>
 
@@ -756,25 +767,31 @@
   <!-- RSVP -->
   <section id="rsvp">
     <div class="rsvp-box">
-      <div style="text-align:center;margin-bottom:4rem">
+      <div style="text-align:center;margin-bottom:2.5rem">
         <h2 class="section-title">RSVP</h2>
         <p class="rsvp-sub" id="rsvpDeadline">Please respond by February 1st</p>
       </div>
-      <div class="rsvp-fields">
-        <div style="position:relative">
-          <input type="text" class="rsvp-input" id="rsvpName" placeholder="Full Name(s)" readonly
-            style="cursor:default;color:var(--stone-600);background:var(--stone-50);padding-right:9rem" />
-          <span style="position:absolute;right:0;bottom:0.75rem;font-size:0.55rem;color:var(--stone-300);letter-spacing:0.15em;text-transform:uppercase;pointer-events:none">Invitation issued to</span>
+
+      <!-- Form -->
+      <div id="rsvpForm">
+        <p class="rsvp-for">RSVP for <span id="rsvpForName"></span></p>
+        <div class="rsvp-accept-row" style="margin-bottom:2rem">
+          <button class="btn-accept" id="rsvpAccept" onclick="setRsvp('Joyfully Accepts')">Joyfully Accepts</button>
+          <button class="btn-decline" id="rsvpDecline" onclick="setRsvp('Regretfully Declines')">Regretfully Declines</button>
         </div>
-        <input type="email" class="rsvp-input" id="rsvpEmail" placeholder="Email Address" />
+        <textarea class="rsvp-textarea" id="rsvpDietary" placeholder="Any dietary requirements or allergies we should know about (optional)" style="margin-bottom:1rem"></textarea>
+        <button class="btn-send" onclick="sendRsvp()">Send My Response</button>
+        <p class="rsvp-msg" id="rsvpMsg"></p>
       </div>
-      <div class="rsvp-accept-row" style="margin-bottom:2rem">
-        <button class="btn-accept" id="rsvpAccept" onclick="setRsvp('Joyfully Accepts')">Joyfully Accepts</button>
-        <button class="btn-decline" id="rsvpDecline" onclick="setRsvp('Regretfully Declines')">Regretfully Declines</button>
+
+      <!-- Confirmation (after they respond) -->
+      <div id="rsvpDone" style="display:none;text-align:center">
+        <p class="rsvp-done-title" id="rsvpDoneTitle"></p>
+        <p class="rsvp-done-note">
+          If you wish to change your RSVP for any reason, please contact Caitriona or Steven
+          directly, or email <a href="mailto:admin@vaughanwedding.co.uk">admin@vaughanwedding.co.uk</a>.
+        </p>
       </div>
-      <textarea class="rsvp-textarea" id="rsvpDietary" placeholder="Dietary requirements or anything else we should know" style="margin-bottom:1rem"></textarea>
-      <button class="btn-send" onclick="sendRsvp()">Send My Response</button>
-      <p class="rsvp-msg" id="rsvpMsg"></p>
     </div>
   </section>
 
@@ -797,6 +814,8 @@ var GUESTS = [
     email:    "steven.vaughanrr@hotmail.co.uk",
     password: "Groomtobe",
     ref:      "CS-9F2K",
+    firstName: "Steven",
+    surname:  "Vaughan",
     name:     "Steven",
     inviteType: "full-day",
     namedTo: "This invitation belongs to Steven",
@@ -812,6 +831,8 @@ var GUESTS = [
     email:    "cnewton0610@gmail.com",
     password: "Bridetobe",
     ref:      "CS-3M7T",
+    firstName: "Caitriona",
+    surname:  "Newton",
     name:     "Caitriona",
     inviteType: "full-day",
     namedTo: "This invitation belongs to Caitriona",
@@ -827,6 +848,8 @@ var GUESTS = [
     email:    "evening.guest@example.com",
     password: "CS-8ML2",
     ref:      "CS-8ML2",
+    firstName: "Evening",
+    surname:  "Guest",
     name:     "Evening Guest",
     inviteType: "evening",
     namedTo: "This invitation belongs to Evening Guest",
@@ -852,7 +875,7 @@ var GUESTS = [
 //  pre-addressed to you instead.)
 // ════════════════════════════════════════════════════════════════════
 var CONTACT_RECIPIENT = "admin@vaughanwedding.co.uk"; // "Need a hand?" requests go here
-var RSVP_RECIPIENT    = "steven.vaughanrr@hotmail.co.uk"; // RSVPs go here
+var RSVP_RECIPIENT    = "admin@vaughanwedding.co.uk"; // RSVPs go here
 var EMAILJS_CONFIG = {
   publicKey:         "YOUR_PUBLIC_KEY",
   serviceId:         "YOUR_SERVICE_ID",
@@ -906,6 +929,8 @@ var SLIDES = [
 // LOGIN
 // ════════════════════════════════════════════════════════════════════
 function normaliseRef(s){ return (s || '').toUpperCase().replace(/[^A-Z0-9]/g, ''); }
+function normName(s){ return (s || '').trim().toLowerCase().replace(/\s+/g, ' ').replace(/[^a-z0-9 ]/g, ''); }
+function fullNameOf(g){ return (g && g.firstName && g.surname) ? (g.firstName + ' ' + g.surname) : (g ? g.name : ''); }
 
 function shakeCard(){
   var card = document.getElementById('loginCard');
@@ -933,7 +958,7 @@ function revealSite(){
 // Personalise the site for a matched guest, then reveal it.
 function loginWithGuest(guest){
   currentGuest = guest;
-  document.getElementById('refError').textContent = '';
+  document.getElementById('nameError').textContent = '';
   document.getElementById('heroNamedTo').textContent = guest.namedTo;
   document.getElementById('welcomeText').textContent = guest.welcomeText;
   document.getElementById('letterSalutation').textContent   = guest.salutation;
@@ -942,32 +967,33 @@ function loginWithGuest(guest){
   document.getElementById('letterExtra').textContent        = guest.letterExtra;
   document.getElementById('scheduleNote').textContent = guest.scheduleNote;
   buildSchedule(guest.arrivalHighlight, guest.inviteType);
-  document.getElementById('rsvpName').value  = guest.name;
-  document.getElementById('rsvpEmail').value = guest.email || '';
+  document.getElementById('rsvpForName').textContent = fullNameOf(guest);
   revealSite();
 }
 
-// Login by individual invitation code (also used by the QR scan)
-function attemptRefLogin() {
-  var code    = normaliseRef(document.getElementById('refInput').value);
-  var errorEl = document.getElementById('refError');
+// Login by first name + surname (looked up in the guest list)
+function attemptNameLogin() {
+  var first   = normName(document.getElementById('firstNameInput').value);
+  var last    = normName(document.getElementById('surnameInput').value);
+  var errorEl = document.getElementById('nameError');
 
-  if (!code) { errorEl.textContent = "Please enter your invitation code."; return; }
+  if (!first || !last) { errorEl.textContent = "Please enter both your first name and surname."; return; }
 
   var guest = null;
   for (var i = 0; i < GUESTS.length; i++) {
-    if (GUESTS[i].ref && normaliseRef(GUESTS[i].ref) === code) { guest = GUESTS[i]; break; }
+    if (normName(GUESTS[i].firstName) === first && normName(GUESTS[i].surname) === last) { guest = GUESTS[i]; break; }
   }
 
   if (!guest) {
-    errorEl.textContent = "We don't recognise that invitation code. Please check your invitation.";
+    errorEl.textContent = "We can't find an invitation under that name. Please check the spelling, or get in touch below.";
     shakeCard();
     return;
   }
   loginWithGuest(guest);
 }
 
-document.getElementById('refInput').addEventListener('keydown', function(e){ if(e.key==='Enter') attemptRefLogin(); });
+document.getElementById('firstNameInput').addEventListener('keydown', function(e){ if(e.key==='Enter') document.getElementById('surnameInput').focus(); });
+document.getElementById('surnameInput').addEventListener('keydown', function(e){ if(e.key==='Enter') attemptNameLogin(); });
 
 // ════════════════════════════════════════════════════════════════════
 // NEED A HAND?  →  a request form emailed to CONTACT_RECIPIENT
@@ -1049,11 +1075,10 @@ function setRsvp(choice){
   document.getElementById('rsvpMsg').textContent = '';
 }
 
-function openRsvpMailto(name, email, dietary, inviteType){
-  var subject = "Wedding RSVP — " + name;
+function openRsvpMailto(name, dietary, inviteType){
+  var subject = "Wedding RSVP — " + name + " — " + rsvpResponse;
   var body =
     "Name: " + name + "\n" +
-    "Email: " + email + "\n" +
     "Response: " + rsvpResponse + "\n" +
     "Invite: " + inviteType + "\n" +
     "Dietary requirements / notes: " + dietary + "\n";
@@ -1062,9 +1087,16 @@ function openRsvpMailto(name, email, dietary, inviteType){
     "&body=" + encodeURIComponent(body);
 }
 
+function showRsvpDone(){
+  var accepted = rsvpResponse.indexOf('Accept') > -1;
+  document.getElementById('rsvpDoneTitle').textContent = accepted
+    ? "Thank you — we're so happy you'll be there!"
+    : "Thank you for letting us know — you'll be missed.";
+  document.getElementById('rsvpForm').style.display = 'none';
+  document.getElementById('rsvpDone').style.display = 'block';
+}
+
 function sendRsvp(){
-  var name    = document.getElementById('rsvpName').value.trim();
-  var email   = document.getElementById('rsvpEmail').value.trim();
   var dietary = document.getElementById('rsvpDietary').value.trim();
   var msg     = document.getElementById('rsvpMsg');
   msg.classList.remove('error');
@@ -1075,33 +1107,34 @@ function sendRsvp(){
     return;
   }
 
+  var name        = fullNameOf(currentGuest);
   var inviteType  = currentGuest ? (currentGuest.inviteType === 'evening' ? 'Reception / Evening' : 'Full Day') : '';
   var dietaryText = dietary || "None provided";
 
   if (emailjsReady && EMAILJS_CONFIG.rsvpTemplateId && EMAILJS_CONFIG.rsvpTemplateId.indexOf('YOUR_') !== 0) {
-    var btn = document.querySelector('.btn-send');
+    var btn = document.querySelector('#rsvpForm .btn-send');
     if (btn) btn.disabled = true;
     msg.textContent = "Sending…";
     emailjs.send(EMAILJS_CONFIG.serviceId, EMAILJS_CONFIG.rsvpTemplateId, {
       to_email:    RSVP_RECIPIENT,
       guest_name:  name,
-      guest_email: email,
       response:    rsvpResponse,
       dietary:     dietaryText,
       invite_type: inviteType
     }).then(function(){
       if (btn) btn.disabled = false;
-      msg.textContent = "Thank you — your response has been sent to Caitriona & Steven.";
+      showRsvpDone();
     }, function(){
       if (btn) btn.disabled = false;
-      openRsvpMailto(name, email, dietaryText, inviteType);
-      msg.textContent = "Opening your email app so you can send your response to us.";
+      openRsvpMailto(name, dietaryText, inviteType);
+      showRsvpDone();
     });
     return;
   }
 
-  openRsvpMailto(name, email, dietaryText, inviteType);
-  msg.textContent = "Your email app should open with your response ready to send to us.";
+  // No EmailJS configured: open the guest's email app pre-addressed, then confirm.
+  openRsvpMailto(name, dietaryText, inviteType);
+  showRsvpDone();
 }
 
 // ════════════════════════════════════════════════════════════════════
@@ -1211,18 +1244,20 @@ document.getElementById('heroImg').src = px("https://rivervalebarn.co.uk/core/..
 // ════════════════════════════════════════════════════════════════════
 // Build a full personalised guest from a compact self-contained payload
 // (type|code|name) carried by the QR — no pre-registration needed.
-function buildGuestFromParts(t, ref, name, email){
+function buildGuestFromParts(t, firstName, surname){
   var full = t !== 'e';
+  var fn = firstName || 'Guest';
+  var fullName = surname ? (fn + ' ' + surname) : fn;
   return {
-    email: email || "",
-    ref: ref,
-    name: name,
+    firstName: fn,
+    surname: surname || '',
+    name: fn,
     inviteType: full ? "full-day" : "evening",
-    namedTo: "This invitation belongs to " + name,
+    namedTo: "This invitation belongs to " + fullName,
     welcomeText: full
-      ? name + ", having you with us on our wedding day means more than words can say. We've put this invitation together just for you, and we hope every moment is as special for you as it will be for us."
-      : name + ", we're so happy you'll be joining us to celebrate in the evening. We've put this invitation together just for you, and we can't wait to raise a glass and dance the night away with you once the evening celebrations begin.",
-    salutation: "Dear " + name + ",",
+      ? fn + ", having you with us on our wedding day means more than words can say. We've put this invitation together just for you, and we hope every moment is as special for you as it will be for us."
+      : fn + ", we're so happy you'll be joining us to celebrate in the evening. We've put this invitation together just for you, and we can't wait to raise a glass and dance the night away with you once the evening celebrations begin.",
+    salutation: "Dear " + fn + ",",
     letterBody: full
       ? "We are so thrilled to invite you to share in our wedding day. You are one of the people who means the most to us, and we wouldn't want to celebrate this milestone without you. From start to finish, we hope you feel how much your presence means."
       : "We would be delighted for you to join us for the evening reception as we celebrate our marriage. You are one of the people we most want to party with, and having you there to dance, laugh and toast with us in the evening would mean the world. The doors open at 20:00 and we can't wait to see you.",
@@ -1251,41 +1286,26 @@ function buildGuestFromParts(t, ref, name, email){
     catch (e) { location.hash = ''; }
   }
 
-  // Self-contained invite: #g=type|code|name  (works with no pre-registration).
-  // If that code also exists in our baked-in list, prefer the richer record.
+  // Self-contained invite: #g=type|firstName|surname  (works with no pre-registration).
+  // If that name also exists in our baked-in list, prefer the richer record.
   var g = params.g;
   if (g) {
     wipeHash();
     var parts = g.split('|');
     var t = parts[0] || 'f';
-    var ref = parts[1] || '';
-    var name = parts[2] || 'Guest';
-    var email = parts[3] || '';
+    var first = parts[1] || '';
+    var last = parts[2] || '';
     var found = null;
-    if (ref) {
-      var nc = normaliseRef(ref);
+    if (first) {
       for (var i = 0; i < GUESTS.length; i++) {
-        if (GUESTS[i].ref && normaliseRef(GUESTS[i].ref) === nc) { found = GUESTS[i]; break; }
+        if (normName(GUESTS[i].firstName) === normName(first) && normName(GUESTS[i].surname) === normName(last)) { found = GUESTS[i]; break; }
       }
     }
-    loginWithGuest(found || buildGuestFromParts(t, ref, name, email));
-    return;
-  }
-
-  // Short code lookup (typed fallback, and legacy #ref= links)
-  var ref = params.ref || params.r;
-  if (ref) {
-    var code = normaliseRef(ref);
-    var gg = null;
-    for (var i = 0; i < GUESTS.length; i++) {
-      if (GUESTS[i].ref && normaliseRef(GUESTS[i].ref) === code) { gg = GUESTS[i]; break; }
-    }
-    wipeHash();
-    if (gg) loginWithGuest(gg);
-    else document.getElementById('refInput').value = ref; // let them try manually
+    loginWithGuest(found || buildGuestFromParts(t, first, last));
     return;
   }
 })();
 </script>
 </body>
 </html>
+
