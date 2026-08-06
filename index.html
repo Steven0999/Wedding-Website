@@ -523,7 +523,7 @@
         <div class="login-divider"></div>
         <p class="login-hint">
           This invitation is personal to you.<br>
-          Scan your QR code, or enter your first name and surname below.
+          Scan your QR code, or enter your name below to open your invitation.
         </p>
 
         <!-- ── NAME ENTRY (primary) ── -->
@@ -536,7 +536,7 @@
         <div class="field">
           <label>Surname</label>
           <div class="field-row">
-            <input type="text" id="surnameInput" placeholder="Your surname" autocomplete="off" />
+            <input type="text" id="surnameInput" placeholder="Your surname (if you have one on your invite)" autocomplete="off" />
           </div>
         </div>
         <p class="error-msg" id="nameError"></p>
@@ -590,6 +590,19 @@
         </div>
         <p class="error-msg" id="helpMsg"></p>
         <button class="btn-open" onclick="submitHelpRequest()">Send To Caitriona &amp; Steven</button>
+        <div class="forgot-wrap" style="border-top:none;padding-top:0.85rem;margin-top:0.85rem">
+          <button class="forgot-link" onclick="showLogin()">Back</button>
+        </div>
+      </div>
+
+      <!-- ── CHOOSER (when a name matches more than one invitation) ── -->
+      <div id="chooseStep" style="display:none">
+        <div class="seal">C&amp;S</div>
+        <h2 class="login-title">Which Is You?</h2>
+        <p class="login-sub">We found more than one invitation under that name</p>
+        <div class="login-divider"></div>
+        <p class="login-hint">Please tap your invitation to continue.</p>
+        <div id="chooseList"></div>
         <div class="forgot-wrap" style="border-top:none;padding-top:0.85rem;margin-top:0.85rem">
           <button class="forgot-link" onclick="showLogin()">Back</button>
         </div>
@@ -695,13 +708,13 @@
     </div>
     <div class="stay-grid">
 
-  <!--   <div class="stay-card">
+      <div class="stay-card">
         <p class="stay-dist">On site · at the venue</p>
         <h3 class="stay-name">Rivervale Lodge</h3>
         <p class="stay-addr">Mill Lane, Yateley, Hampshire GU46 7SS</p>
-        <p class="stay-note">are limited and arranged through us, so please check with Caitriona &amp; Steven before booking.</p>
+        <p class="stay-note">Ten ensuite bedrooms and a breakfast room right at Rivervale Barn — the easiest place to stay. Rooms are limited and arranged through us, so please check with Caitriona &amp; Steven before booking.</p>
         <a class="stay-link" href="https://www.rivervale-lodge.co.uk/" target="_blank" rel="noopener">Visit Website</a>
-      </div>-->
+      </div>
 
       <div class="stay-card">
         <p class="stay-dist">Approx. 5 min drive</p>
@@ -724,7 +737,7 @@
         <h3 class="stay-name">DoubleTree by Hilton St Anne's Manor</h3>
         <p class="stay-addr">London Road, Wokingham, Berkshire RG40 1ST</p>
         <p class="stay-note">A country-house hotel with a spa, indoor pool and restaurant, set in 25 acres of grounds.</p>
-   <!--     <p class="stay-discount">Rivervale Barn wedding rate: quote <strong>“RIVER”</strong> for 10% off. Please mention the wedding and confirm the rate when you book.</p> -->
+        <p class="stay-discount">Rivervale Barn wedding rate: quote <strong>“RIVER”</strong> for 10% off. Please mention the wedding and confirm the rate when you book.</p>
         <a class="stay-link" href="https://www.hilton.com/en/hotels/brasadi-doubletree-st-annes-manor/" target="_blank" rel="noopener">Book Direct</a>
       </div>
 
@@ -755,10 +768,10 @@
       <h2 class="section-title">Registry</h2>
       <p class="body-text">
         Your presence at our wedding is the greatest gift of all. However, if you wish
-        to honour us, we have a honeymoon fund set up that you can contribute to.
+        to honour us with a gift, we have a registry set up for our future home and honeymoon.
       </p>
       <div class="btn-row">
-    <!--    <button class="btn-primary">View Gift List</button> -->
+        <button class="btn-primary">View Gift List</button>
         <button class="btn-outline">Honeymoon Fund</button>
       </div>
     </div>
@@ -769,7 +782,7 @@
     <div class="rsvp-box">
       <div style="text-align:center;margin-bottom:2.5rem">
         <h2 class="section-title">RSVP</h2>
-        <p class="rsvp-sub" id="rsvpDeadline">Please respond by January 1st 2027</p>
+        <p class="rsvp-sub" id="rsvpDeadline">Please respond by February 1st</p>
       </div>
 
       <!-- Form -->
@@ -810,7 +823,10 @@
 // GUEST DATA
 // ════════════════════════════════════════════════════════════════════
 var GUESTS = [
- {
+  {
+    email:    "steven.vaughanrr@hotmail.co.uk",
+    password: "Groomtobe",
+    ref:      "CS-9F2K",
     firstName: "Steven",
     surname:  "Vaughan",
     name:     "Steven",
@@ -824,7 +840,10 @@ var GUESTS = [
     arrivalHighlight: 0,
     scheduleNote: "Your full day begins at 13:30 — your seat will be reserved in the Ceremony Barn"
   },
- {
+  {
+    email:    "cnewton0610@gmail.com",
+    password: "Bridetobe",
+    ref:      "CS-3M7T",
     firstName: "Caitriona",
     surname:  "Barry",
     name:     "Caitriona",
@@ -839,22 +858,139 @@ var GUESTS = [
     scheduleNote: "Your full day begins at 13:30 — your seat will be reserved in the Ceremony Barn"
   },
   {
-    email:    "evening.guest@example.com",
-    password: "CS-8ML2",
-    ref:      "CS-8ML2",
-    firstName: "Evening",
-    surname:  "Guest",
-    name:     "Evening Guest",
-    inviteType: "evening",
-    namedTo: "This invitation belongs to Evening Guest",
-    welcomeText: "Evening Guest, we're so happy you'll be joining us to celebrate in the evening. We've put this invitation together just for you, and we can't wait to raise a glass and dance the night away with you once the evening celebrations begin.",
-    salutation: "Dear Evening Guest,",
-    letterBody: "We would be delighted for you to join us for the evening reception as we celebrate our marriage. You are one of the people we most want to party with, and having you there to dance, laugh and toast with us in the evening would mean the world. The doors open at 20:00 and we can't wait to see you.",
-    inviteTypeLabel: "Reception / Evening Guest — Evening Reception & Celebrations",
-    letterExtra: "Please join us from 20:00 for the evening reception — an evening of drinks, dancing and celebration. We can't wait to see you there.",
-    arrivalHighlight: 4,
-    scheduleNote: "Your evening begins at 20:00 — join us for the reception and celebrations"
-  }
+    members: [ { firstName: "Pamela", surname: "Vaughan" }, { firstName: "Michael", surname: "Vaughan" } ],
+    inviteType: "full-day"
+  },
+  {
+    members: [ { firstName: "Heather", surname: "Fraser" }, { firstName: "Brendan", surname: "Kane" } ],
+    inviteType: "full-day"
+  },
+  {
+    members: [ { firstName: "Rick", surname: "Vaughan" }, { firstName: "Deana", surname: "Vaughan" } ],
+    inviteType: "full-day"
+  },
+  {
+    members: [ { firstName: "William", surname: "Vaughan" }, { firstName: "Sian", surname: "Vaughan" }, { firstName: "Dylan", surname: "Vaughan" } ],
+    inviteType: "full-day"
+  },
+  {
+    members: [ { firstName: "Paul", surname: "Barry" }, { firstName: "Elle", surname: "Barry" } ],
+    inviteType: "full-day"
+  },
+  {
+    members: [ { firstName: "Paul", surname: "Barry" }, { firstName: "Marie", surname: "Barry" } ],
+    inviteType: "full-day"
+  },
+  {
+    members: [ { firstName: "Jennie", surname: "Corry" }, { firstName: "Pat", surname: "Corry" } ],
+    inviteType: "full-day"
+  },
+  {
+    members: [ { firstName: "David", surname: "Barry" }, { firstName: "Sinead", surname: "Barry" } ],
+    inviteType: "full-day"
+  },
+  {
+    members: [ { firstName: "Kian", surname: "Newton" }, { firstName: "Harriet", surname: "Gaines" } ],
+    inviteType: "full-day"
+  },
+  {
+    members: [ { firstName: "Kelsey", surname: "Killick" }, { firstName: "Nick", surname: "Ryall" }, { firstName: "Ronnie", surname: "Ryall" }, { firstName: "Elsie", surname: "Ryall" }, { firstName: "Vinnie", surname: "Ryall" } ],
+    inviteType: "full-day"
+  },
+  {
+    members: [ { firstName: "Adrian", surname: "Fraser" }, { firstName: "Maggie", surname: "Fraser" } ],
+    inviteType: "full-day"
+  },
+  {
+    members: [ { firstName: "Bob", surname: "Orchard" }, { firstName: "Evelyn", surname: "Orchard" } ],
+    inviteType: "full-day"
+  },
+  {
+    members: [ { firstName: "Roger", surname: "Vaughan" }, { firstName: "Teresa", surname: "Vaughan" } ],
+    inviteType: "full-day"
+  },
+  {
+    members: [ { firstName: "Demi", surname: "" }, { firstName: "Nathan", surname: "" } ],
+    inviteType: "full-day"
+  },
+  {
+    members: [ { firstName: "Nick", surname: "the Barber" }, { firstName: "Nicks", surname: "Partner" } ],
+    inviteType: "full-day"
+  },
+  {
+    members: [ { firstName: "Conor", surname: "Brereton" }, { firstName: "Danielle", surname: "Brereton" } ],
+    inviteType: "full-day"
+  },
+  {
+    members: [ { firstName: "Kelly", surname: "Fowler" }, { firstName: "Graham", surname: "Fowler" } ],
+    inviteType: "full-day"
+  },
+  {
+    members: [ { firstName: "Naomi", surname: "Myers" }, { firstName: "Lee", surname: "Elvin" } ],
+    inviteType: "full-day"
+  },
+  {
+    members: [ { firstName: "Kim", surname: "" }, { firstName: "Lee", surname: "" } ],
+    inviteType: "full-day"
+  },
+  {
+    members: [ { firstName: "Anna", surname: "Ghafur" }, { firstName: "Pat", surname: "Ghafur" } ],
+    inviteType: "full-day"
+  },
+  {
+    members: [ { firstName: "Elise", surname: "Shaw" }, { firstName: "Dany", surname: "Shaw" } ],
+    inviteType: "full-day"
+  },
+  {
+    members: [ { firstName: "Corrine", surname: "" }, { firstName: "Adam", surname: "" } ],
+    inviteType: "full-day"
+  },
+  {
+    members: [ { firstName: "Vadeem", surname: "Oppesenko" }, { firstName: "Sara", surname: "Kajda" } ],
+    inviteType: "full-day"
+  },
+  {
+    members: [ { firstName: "Danny", surname: "Brown" }, { firstName: "Mary Ann", surname: "Brown" } ],
+    inviteType: "evening"
+  },
+  {
+    members: [ { firstName: "Shauna", surname: "Smith" }, { firstName: "Shane", surname: "Smith" } ],
+    inviteType: "evening"
+  },
+  {
+    members: [ { firstName: "John", surname: "Mac" }, { firstName: "Vanessa", surname: "Mac" } ],
+    inviteType: "evening"
+  },
+  {
+    members: [ { firstName: "Pete", surname: "Daines" }, { firstName: "Catherine", surname: "Daines" } ],
+    inviteType: "evening"
+  },
+  {
+    members: [ { firstName: "Mel", surname: "Gregory" }, { firstName: "Andy", surname: "Gregory" }, { firstName: "Lenny", surname: "Gregory" } ],
+    inviteType: "evening"
+  },
+  {
+    members: [ { firstName: "Jane", surname: "" }, { firstName: "Richard", surname: "" } ],
+    inviteType: "evening"
+  },
+  {
+    members: [ { firstName: "Gemma", surname: "Tedder" }, { firstName: "Mark", surname: "" } ],
+    inviteType: "evening"
+  },
+  { firstName: "Kye", surname: "Newton", inviteType: "full-day" },
+  { firstName: "Harriet", surname: "Vaughan", inviteType: "full-day" },
+  { firstName: "Ann", surname: "Henderson", inviteType: "full-day" },
+  { firstName: "Monica", surname: "", inviteType: "full-day" },
+  { firstName: "Maureen", surname: "Streets", inviteType: "full-day" },
+  { firstName: "Rian", surname: "Nobes", inviteType: "full-day" },
+  { firstName: "Teresa", surname: "Farrow", inviteType: "full-day" },
+  { firstName: "Emily", surname: "Sweetapple", inviteType: "full-day" },
+  { firstName: "Vicki", surname: "Walsh", inviteType: "full-day" },
+  { firstName: "Sasha", surname: "Haylett", inviteType: "evening" },
+  { firstName: "Chelsea", surname: "Morris", inviteType: "evening" },
+  { firstName: "Sharon", surname: "Tilbury", inviteType: "evening" },
+  { firstName: "Stevie", surname: "", inviteType: "evening" },
+  { firstName: "Chris", surname: "", inviteType: "evening" }
 ];
 
 // ════════════════════════════════════════════════════════════════════
@@ -926,6 +1062,25 @@ function normaliseRef(s){ return (s || '').toUpperCase().replace(/[^A-Z0-9]/g, '
 function normName(s){ return (s || '').trim().toLowerCase().replace(/\s+/g, ' ').replace(/[^a-z0-9 ]/g, ''); }
 function fullNameOf(g){ return (g && g.firstName && g.surname) ? (g.firstName + ' ' + g.surname) : (g ? g.name : ''); }
 
+// Join a list of names as "A", "A & B", or "A, B & C".
+function joinNames(arr){
+  if (arr.length <= 1) return arr[0] || '';
+  if (arr.length === 2) return arr[0] + ' & ' + arr[1];
+  return arr.slice(0, -1).join(', ') + ' & ' + arr[arr.length - 1];
+}
+
+// Build the joint names for a shared invite (handles matching or different surnames).
+function jointNames(members){
+  var firsts = members.map(function(m){ return m.firstName; });
+  var first = joinNames(firsts);
+  var surs = members.map(function(m){ return m.surname || ''; });
+  var allSame = surs[0] && surs.every(function(x){ return normName(x) === normName(surs[0]); });
+  var full = allSame
+    ? joinNames(firsts) + ' ' + surs[0]
+    : joinNames(members.map(function(m){ return (m.firstName + ' ' + (m.surname || '')).trim(); }));
+  return { first: first, full: full, shared: allSame ? surs[0] : '' };
+}
+
 function shakeCard(){
   var card = document.getElementById('loginCard');
   card.classList.remove('shake');
@@ -966,24 +1121,85 @@ function loginWithGuest(guest){
 }
 
 // Login by first name + surname (looked up in the guest list)
+// Gather every invitation matching the entered name (usually just one).
+function collectMatches(first, last){
+  var out = [];
+  if (last) {
+    for (var i = 0; i < GUESTS.length; i++) {
+      var g = GUESTS[i];
+      if (g.members) {
+        for (var j = 0; j < g.members.length; j++) {
+          if (normName(g.members[j].firstName) === first && normName(g.members[j].surname) === last) {
+            var jn = jointNames(g.members);
+            var hg = buildGuestFromParts(g.inviteType === 'evening' ? 'e' : 'f', jn.first, jn.shared);
+            hg.namedTo = "This invitation belongs to " + jn.full;
+            hg.name = jn.full;
+            out.push({ guest: hg, label: jn.full });
+            break;
+          }
+        }
+      } else if (g.surname && normName(g.firstName) === first && normName(g.surname) === last) {
+        var sg = g.welcomeText ? g : buildGuestFromParts(g.inviteType === 'evening' ? 'e' : 'f', g.firstName, g.surname);
+        out.push({ guest: sg, label: g.firstName + ' ' + g.surname });
+      }
+    }
+  }
+  if (out.length === 0) {
+    for (var k = 0; k < GUESTS.length; k++) {
+      var gg = GUESTS[k];
+      if (gg.members) {
+        for (var jj = 0; jj < gg.members.length; jj++) {
+          if (!gg.members[jj].surname && normName(gg.members[jj].firstName) === first) {
+            var jn2 = jointNames(gg.members);
+            var hg2 = buildGuestFromParts(gg.inviteType === 'evening' ? 'e' : 'f', jn2.first, jn2.shared);
+            hg2.namedTo = "This invitation belongs to " + jn2.full;
+            hg2.name = jn2.full;
+            out.push({ guest: hg2, label: jn2.full });
+            break;
+          }
+        }
+      } else if (!gg.surname && normName(gg.firstName) === first) {
+        var fg = gg.welcomeText ? gg : buildGuestFromParts(gg.inviteType === 'evening' ? 'e' : 'f', gg.firstName, '');
+        out.push({ guest: fg, label: gg.firstName });
+      }
+    }
+  }
+  return out;
+}
+
+var _candidates = [];
+function showGuestChooser(matches){
+  _candidates = matches;
+  var box = document.getElementById('chooseList');
+  box.innerHTML = '';
+  matches.forEach(function(m, idx){
+    var b = document.createElement('button');
+    b.className = 'btn-open';
+    b.style.marginBottom = '0.75rem';
+    b.textContent = m.label;
+    b.onclick = function(){ loginWithGuest(_candidates[idx].guest); };
+    box.appendChild(b);
+  });
+  document.getElementById('loginStep').style.display = 'none';
+  document.getElementById('chooseStep').style.display = 'block';
+}
+
 function attemptNameLogin() {
   var first   = normName(document.getElementById('firstNameInput').value);
   var last    = normName(document.getElementById('surnameInput').value);
   var errorEl = document.getElementById('nameError');
 
-  if (!first || !last) { errorEl.textContent = "Please enter both your first name and surname."; return; }
+  if (!first) { errorEl.textContent = "Please enter your first name."; return; }
 
-  var guest = null;
-  for (var i = 0; i < GUESTS.length; i++) {
-    if (normName(GUESTS[i].firstName) === first && normName(GUESTS[i].surname) === last) { guest = GUESTS[i]; break; }
-  }
+  var matches = collectMatches(first, last);
 
-  if (!guest) {
+  if (matches.length === 0) {
     errorEl.textContent = "We can't find an invitation under that name. Please check the spelling, or get in touch below.";
     shakeCard();
     return;
   }
-  loginWithGuest(guest);
+  if (matches.length === 1) { loginWithGuest(matches[0].guest); return; }
+  showGuestChooser(matches);
 }
 
 document.getElementById('firstNameInput').addEventListener('keydown', function(e){ if(e.key==='Enter') document.getElementById('surnameInput').focus(); });
@@ -1001,6 +1217,7 @@ function showHelp(){
 
 function showLogin(){
   document.getElementById('helpStep').style.display = 'none';
+  var ch = document.getElementById('chooseStep'); if (ch) ch.style.display = 'none';
   document.getElementById('loginStep').style.display = 'block';
 }
 
@@ -1292,7 +1509,7 @@ function buildGuestFromParts(t, firstName, surname){
     var found = null;
     if (first) {
       for (var i = 0; i < GUESTS.length; i++) {
-        if (normName(GUESTS[i].firstName) === normName(first) && normName(GUESTS[i].surname) === normName(last)) { found = GUESTS[i]; break; }
+        if (GUESTS[i].welcomeText && normName(GUESTS[i].firstName) === normName(first) && normName(GUESTS[i].surname) === normName(last)) { found = GUESTS[i]; break; }
       }
     }
     loginWithGuest(found || buildGuestFromParts(t, first, last));
@@ -1302,4 +1519,3 @@ function buildGuestFromParts(t, firstName, surname){
 </script>
 </body>
 </html>
-
