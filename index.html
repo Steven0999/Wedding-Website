@@ -441,6 +441,9 @@
 
   /* REGISTRY */
   .registry-section { background: var(--stone-50); }
+  .gift-link-wrap { margin-top: 1.75rem; }
+  .gift-link { font-size: 0.62rem; letter-spacing: 0.28em; text-transform: uppercase; color: var(--stone-500); text-decoration: none; border-bottom: 1px solid var(--stone-300); padding-bottom: 5px; transition: color 0.2s, border-color 0.2s; }
+  .gift-link:hover { color: var(--black); border-color: var(--black); }
   .gift-icon { margin: 0 auto 2rem; display: block; width: 32px; }
   .gift-icon svg { width: 32px; height: 32px; stroke: var(--stone-300); fill: none; stroke-width: 1.5; }
   .btn-row { display: flex; flex-wrap: wrap; gap: 1rem; justify-content: center; margin-top: 2.5rem; }
@@ -625,7 +628,7 @@
       <a href="#venue">Venue</a>
       <a href="#schedule">Schedule</a>
       <a href="#stay">Stay</a>
-      <a href="#registry">Registry</a>
+      <a href="#gifts">Gifts</a>
       <a href="#rsvp">RSVP</a>
     </div>
   </nav>
@@ -737,7 +740,6 @@
         <h3 class="stay-name">DoubleTree by Hilton St Anne's Manor</h3>
         <p class="stay-addr">London Road, Wokingham, Berkshire RG40 1ST</p>
         <p class="stay-note">A country-house hotel with a spa, indoor pool and restaurant, set in 25 acres of grounds.</p>
-        <p class="stay-discount">Rivervale Barn wedding rate: quote <strong>“RIVER”</strong> for 10% off. Please mention the wedding and confirm the rate when you book.</p>
         <a class="stay-link" href="https://www.hilton.com/en/hotels/brasadi-doubletree-st-annes-manor/" target="_blank" rel="noopener">Book Direct</a>
       </div>
 
@@ -759,21 +761,21 @@
     </div>
   </section>
 
-  <!-- REGISTRY -->
-  <section id="registry" class="registry-section">
+  <!-- GIFTS -->
+  <section id="gifts" class="registry-section">
     <div class="section-inner">
       <div class="gift-icon">
         <svg viewBox="0 0 24 24"><path d="M20 12v10H4V12"/><path d="M22 7H2v5h20V7z"/><path d="M12 22V7"/><path d="M12 7H7.5a2.5 2.5 0 010-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 000-5C13 2 12 7 12 7z"/></svg>
       </div>
-      <h2 class="section-title">Registry</h2>
+      <h2 class="section-title">Gifts</h2>
       <p class="body-text">
         Your presence at our wedding is the greatest gift of all. However, if you wish
-        to honour us with a gift, we have a registry set up for our future home and honeymoon.
+        to honour us with a gift, a contribution towards our future together and our
+        honeymoon would be very warmly received.
       </p>
-      <div class="btn-row">
-        <button class="btn-primary">View Gift List</button>
-        <button class="btn-outline">Honeymoon Fund</button>
-      </div>
+      <p class="gift-link-wrap" id="giftLinkWrap" style="display:none">
+        <a href="#" id="giftLink" target="_blank" rel="noopener" class="gift-link">Leave a gift</a>
+      </p>
     </div>
   </section>
 
@@ -910,7 +912,7 @@ var GUESTS = [
     inviteType: "full-day"
   },
   {
-    members: [ { firstName: "Demi", surname: "" }, { firstName: "Nathan", surname: "" } ],
+    members: [ { firstName: "Demi", surname: "Mahon" }, { firstName: "Nathan", surname: "Phillips" } ],
     inviteType: "full-day"
   },
   {
@@ -1012,6 +1014,31 @@ var EMAILJS_CONFIG = {
   contactTemplateId: "YOUR_CONTACT_TEMPLATE_ID", // the "Need a hand?" request template
   rsvpTemplateId:    "YOUR_RSVP_TEMPLATE_ID"      // the RSVP template
 };
+
+// ════════════════════════════════════════════════════════════════════
+// GIFTS  ←←←  OPTIONAL & DISCREET
+// If you'd like to quietly accept gifts, create a free PayPal.me link at
+// https://www.paypal.com/paypalme/ (guests can pay by card, no account needed)
+// or use Monzo.me, and put the name below. A small "Leave a gift" link then
+// appears; tapping it opens the payment page where the guest enters any amount
+// privately — no amounts are ever shown on the website. Leave as-is to hide it.
+// ════════════════════════════════════════════════════════════════════
+var GIFTS = {
+  provider: "paypal",            // "paypal" or "monzo"
+  handle:   "YOUR_PAYPAL_ME_NAME"
+};
+(function initGifts(){
+  var wrap = document.getElementById('giftLinkWrap');
+  var link = document.getElementById('giftLink');
+  if (!wrap || !link) return;
+  var h = GIFTS.handle;
+  if (!h || h.indexOf('YOUR_') === 0) return; // stays hidden until set up
+  link.href = (GIFTS.provider === 'monzo')
+    ? "https://monzo.me/" + encodeURIComponent(h)
+    : "https://paypal.me/" + encodeURIComponent(h);
+  wrap.style.display = '';
+})();
+
 
 var emailjsReady = false;
 (function initEmailJS(){
