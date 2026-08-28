@@ -1320,30 +1320,42 @@ function sendRsvp(){
   var inviteType  = currentGuest ? (currentGuest.inviteType === 'evening' ? 'Reception / Evening' : 'Full Day') : '';
   var dietaryText = dietary || "None provided";
 
-  if (emailjsReady && EMAILJS_CONFIG.rsvpTemplateId && EMAILJS_CONFIG.rsvpTemplateId.indexOf('YOUR_') !== 0) {
-    var btn = document.querySelector('#rsvpForm .btn-send');
-    if (btn) btn.disabled = true;
-    msg.textContent = "Sending…";
-    emailjs.send(EMAILJS_CONFIG.serviceId, EMAILJS_CONFIG.rsvpTemplateId, {
-      to_email:    RSVP_RECIPIENT,
-      guest_name:  name,
-      response:    rsvpResponse,
-      dietary:     dietaryText,
-      invite_type: inviteType
-    }).then(function(){
-      if (btn) btn.disabled = false;
-      showRsvpDone();
-    }, function(){
-      if (btn) btn.disabled = false;
-      openRsvpMailto(name, dietaryText, inviteType);
-      showRsvpDone();
-    });
-    return;
-  }
+  var btn = document.querySelector('#rsvpForm .btn-send');
+  if (btn) btn.disabled = true;
+  msg.textContent = "Sending…";
 
-  // No EmailJS configured: open the guest's email app pre-addressed, then confirm.
-  openRsvpMailto(name, dietaryText, inviteType);
-  showRsvpDone();
+  // Sends straight to the admin inbox in the background — the guest never leaves the page.
+  fetch("https://formsubmit.co/ajax/" + encodeURIComponent(RSVP_RECIPIENT), {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+    body: JSON.stringify({
+      _subject: "Wedding RSVP — " + name + " — " + rsvpResponse,
+      _template: "table",
+      _captcha: "false",
+      Name: name,
+      Response: rsvpResponse,
+      Invite: inviteType,
+      "Dietary requirements": dietaryText
+    })
+  })
+  .then(function(r){ return r.json(); })
+  .then(function(d){
+    if (btn) btn.disabled = false;
+    if (d && (d.success === true || d.success === 'true')) {
+      showRsvpDone();
+    } else {
+      // Not sent (e.g. inbox not confirmed yet) — open the email app as a backup.
+      openRsvpMailto(name, dietaryText, inviteType);
+      msg.classList.add('error');
+      msg.textContent = "We couldn't send that automatically — your email app has opened as a backup.";
+    }
+  })
+  .catch(function(){
+    if (btn) btn.disabled = false;
+    openRsvpMailto(name, dietaryText, inviteType);
+    msg.classList.add('error');
+    msg.textContent = "We couldn't send that automatically — your email app has opened as a backup.";
+  });
 }
 
 // ════════════════════════════════════════════════════════════════════
