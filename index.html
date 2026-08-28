@@ -981,14 +981,6 @@ var GUESTS = [
 // ════════════════════════════════════════════════════════════════════
 var CONTACT_RECIPIENT = "admin@vaughanwedding.co.uk"; // "Need a hand?" requests go here
 var RSVP_RECIPIENT    = "admin@vaughanwedding.co.uk"; // RSVPs go here
-
-// ════════════════════════════════════════════════════════════════════
-// RSVP SENDING  ←←←  paste your free Web3Forms access key here
-// Go to https://web3forms.com, enter admin@vaughanwedding.co.uk, and they'll
-// email you an access key (no account, no password). Paste it below and RSVPs
-// will send straight to that inbox — the guest never leaves the page.
-// ════════════════════════════════════════════════════════════════════
-var WEB3FORMS_KEY = "YOUR_ACCESS_KEY";
 var EMAILJS_CONFIG = {
   publicKey:         "YOUR_PUBLIC_KEY",
   serviceId:         "YOUR_SERVICE_ID",
@@ -1329,37 +1321,30 @@ function sendRsvp(){
   var dietaryText = dietary || "None provided";
 
   var btn = document.querySelector('#rsvpForm .btn-send');
-
-  // No key set up yet → open the email app as a backup.
-  if (!WEB3FORMS_KEY || WEB3FORMS_KEY.indexOf('YOUR_') === 0) {
-    openRsvpMailto(name, dietaryText, inviteType);
-    msg.textContent = "Opening your email app so you can send your response to us.";
-    return;
-  }
-
   if (btn) btn.disabled = true;
   msg.textContent = "Sending…";
 
   // Sends straight to the admin inbox in the background — the guest never leaves the page.
-  fetch("https://api.web3forms.com/submit", {
+  fetch("https://formsubmit.co/ajax/" + encodeURIComponent(RSVP_RECIPIENT), {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
     body: JSON.stringify({
-      access_key: WEB3FORMS_KEY,
-      subject:    "Wedding RSVP — " + name + " — " + rsvpResponse,
-      from_name:  "Vaughan Wedding RSVP",
-      Name:        name,
-      Response:    rsvpResponse,
-      Invite:      inviteType,
+      _subject: "Wedding RSVP — " + name + " — " + rsvpResponse,
+      _template: "table",
+      _captcha: "false",
+      Name: name,
+      Response: rsvpResponse,
+      Invite: inviteType,
       "Dietary requirements": dietaryText
     })
   })
   .then(function(r){ return r.json(); })
   .then(function(d){
     if (btn) btn.disabled = false;
-    if (d && d.success) {
+    if (d && (d.success === true || d.success === 'true')) {
       showRsvpDone();
     } else {
+      // Not sent (e.g. inbox not confirmed yet) — open the email app as a backup.
       openRsvpMailto(name, dietaryText, inviteType);
       msg.classList.add('error');
       msg.textContent = "We couldn't send that automatically — your email app has opened as a backup.";
