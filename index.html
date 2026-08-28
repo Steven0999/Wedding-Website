@@ -307,7 +307,7 @@
   }
   .hero-date {
     font-size: 0.7rem; letter-spacing: 0.6em; text-transform: uppercase;
-    font-weight: 300; opacity: 0.85;
+    font-weight: 300; opacity: 0.85; line-height: 2.1;
   }
   /* Personalised "this invitation belongs to" banner under the date */
   .hero-named-to {
@@ -383,7 +383,7 @@
   .letter-sign span {
     display: block; font-family: 'Lato', sans-serif; font-style: normal;
     font-size: 0.65rem; letter-spacing: 0.25em; text-transform: uppercase;
-    color: var(--stone-400); margin-top: 0.25rem;
+    color: var(--stone-400); margin-bottom: 0.5rem;
   }
 
   /* VENUE */
@@ -501,7 +501,7 @@
   /* FOOTER */
   footer { padding: 6rem 1.5rem; text-align: center; border-top: 1px solid var(--stone-50); }
   .footer-logo { font-family: 'Playfair Display', serif; font-size: 2.5rem; letter-spacing: 0.3em; margin-bottom: 1.5rem; }
-  .footer-sub { font-size: 0.55rem; letter-spacing: 0.5em; text-transform: uppercase; color: var(--stone-400); }
+  .footer-sub { font-size: 0.55rem; letter-spacing: 0.5em; text-transform: uppercase; color: var(--stone-400); line-height: 2.2; }
 
   @media (max-width: 640px) {
     nav { padding: 1rem; } nav.scrolled { padding: 0.75rem 1rem; } .nav-links { display: none; }
@@ -626,7 +626,6 @@
       <a href="#welcome">Welcome</a>
       <a href="#your-invitation">Your Invitation</a>
       <a href="#venue">Venue</a>
-      <a href="#schedule">Schedule</a>
       <a href="#stay">Stay</a>
       <a href="#gifts">Gifts</a>
       <a href="#rsvp">RSVP</a>
@@ -639,7 +638,7 @@
     <div class="hero-overlay"></div>
     <div class="hero-content">
       <h1 class="hero-title">Caitriona &amp; Steven</h1>
-      <p class="hero-date">March 25th, 2027 · Rivervale Barn, Yateley</p>
+      <p class="hero-date">March 25th 2027,<br>Rivervale Barn,<br>Yateley</p>
       <p class="hero-named-to" id="heroNamedTo"></p>
     </div>
     <button class="hero-scroll" onclick="document.getElementById('welcome').scrollIntoView({behavior:'smooth'})">
@@ -659,14 +658,14 @@
   <!-- PERSONAL LETTER -->
   <section id="your-invitation" class="letter-section">
     <div class="letter-box">
-      <p class="letter-eyebrow">A personal letter · Caitriona &amp; Steven</p>
+      <p class="letter-eyebrow">A personal letter</p>
       <p class="letter-salutation" id="letterSalutation"></p>
       <p class="letter-body" id="letterBody"></p>
       <p class="letter-invite-type" id="letterInviteType"></p>
       <p class="letter-body" id="letterExtra"></p>
       <p class="letter-sign">
-        Caitriona &amp; Steven
         <span>With all our love</span>
+        Caitriona &amp; Steven
       </p>
     </div>
   </section>
@@ -675,7 +674,7 @@
   <section class="venue-section" id="venue">
     <div class="venue-header">
       <h2 class="venue-title">The Venue</h2>
-      <p class="venue-addr">Mill Lane, Yateley<br>Hampshire, GU46 7SS</p>
+      <p class="venue-addr">Mill Lane,<br>Yateley,<br>Hampshire<br>GU46 7SS</p>
     </div>
     <div class="carousel-wrap">
       <div class="carousel-stage" id="carouselStage"></div>
@@ -686,15 +685,6 @@
         <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
       </button>
       <div class="dots" id="dots"></div>
-    </div>
-  </section>
-
-  <!-- SCHEDULE -->
-  <section id="schedule">
-    <div style="max-width:70rem;margin:0 auto">
-      <h2 class="section-title" style="text-align:center;margin-bottom:1rem">Schedule</h2>
-      <p style="text-align:center;font-size:.7rem;letter-spacing:.2em;text-transform:uppercase;color:var(--stone-400);margin-bottom:4rem" id="scheduleNote"></p>
-      <div class="schedule-grid" id="scheduleGrid"></div>
     </div>
   </section>
 
@@ -712,7 +702,7 @@
     <div class="stay-grid">
 
       <div class="stay-card">
-        <p class="stay-dist">Approx. 5 min drive</p>
+        <p class="stay-dist">Approx. 4 min drive · in Yateley</p>
         <h3 class="stay-name">The Casa Hotel</h3>
         <p class="stay-addr">Handford Lane, Yateley, Hampshire GU46 6BT</p>
         <p class="stay-note">The closest hotel to the barn and a long-time favourite with Rivervale guests, with its own Italian restaurant on site. Very handy for taxis to and from the venue.</p>
@@ -720,36 +710,27 @@
       </div>
 
       <div class="stay-card">
-        <p class="stay-dist">Approx. 5 min drive</p>
+        <p class="stay-dist">Approx. 6 min drive</p>
+        <h3 class="stay-name">The Ely Hotel</h3>
+        <p class="stay-addr">London Road, Blackwater, Yateley, Hampshire GU17 9LJ</p>
+        <p class="stay-note">A traditional English country pub with comfortable en-suite rooms on the edge of Yateley, with its own bar, restaurant and free parking. A relaxed, good-value option close by.</p>
+        <a class="stay-link" href="https://www.chefandbrewer.com/pubs/hampshire/ely/hotel" target="_blank" rel="noopener">Book / Enquire</a>
+      </div>
+
+      <div class="stay-card">
+        <p class="stay-dist">Approx. 8 min drive</p>
         <h3 class="stay-name">Warbrook House Hotel</h3>
         <p class="stay-addr">The Street, Eversley, Hampshire RG27 0PL</p>
         <p class="stay-note">A Grade II listed country house set in 121 acres of gardens — a characterful place to stay just a few minutes from the venue.</p>
         <a class="stay-link" href="https://www.warbrookhouse.com/" target="_blank" rel="noopener">Book / Enquire</a>
       </div>
 
-      <div class="stay-card">
-        <p class="stay-dist">Approx. 15 min drive</p>
-        <h3 class="stay-name">DoubleTree by Hilton St Anne's Manor</h3>
-        <p class="stay-addr">London Road, Wokingham, Berkshire RG40 1ST</p>
-        <p class="stay-note">A country-house hotel with a spa, indoor pool and restaurant, set in 25 acres of grounds.</p>
-        <a class="stay-link" href="https://www.hilton.com/en/hotels/brasadi-doubletree-st-annes-manor/" target="_blank" rel="noopener">Book Direct</a>
-      </div>
-
-      <div class="stay-card">
-        <p class="stay-dist">Approx. 20 min drive</p>
-        <h3 class="stay-name">Holiday Inn Farnborough</h3>
-        <p class="stay-addr">Lynchford Road, Farnborough, Hampshire GU14 6AZ</p>
-        <p class="stay-note">A comfortable, well-rated chain hotel with free parking and a restaurant — a reliable option a little further out.</p>
-        <a class="stay-link" href="https://www.ihg.com/holidayinn/hotels/us/en/farnborough/fabht/hoteldetail" target="_blank" rel="noopener">Book / Enquire</a>
-      </div>
-
     </div>
 
     <div class="stay-travel">
-      <h3>Getting home, parking &amp; trains</h3>
-      <p><strong>Taxis:</strong> the bar closes at 11:30 pm, so if you're heading off that night we'd suggest pre-booking a taxi for around then. Rivervale Barn keeps a list of preferred local taxi firms on their <a href="https://rivervalebarn.co.uk/contact/" target="_blank" rel="noopener">contact page</a> — a reliable local option is Your Local Car (01252 674646). It's always worth booking in advance on a wedding night.</p>
+      <h3>Getting home &amp; parking</h3>
+      <p><strong>Taxis:</strong> the bar closes at 11:30 pm, so if you're heading off that night we'd suggest pre-booking a taxi for around then. Rivervale Barn keeps a list of preferred local taxi firms on their <a href="https://rivervalebarn.co.uk/contact/" target="_blank" rel="noopener">contact page</a>. It's always worth booking in advance on a wedding night.</p>
       <p><strong>Driving:</strong> you're welcome to leave your car in the venue car park overnight (at your own risk) and collect it by 10:00 am the next morning — the gates open at 8:00 am.</p>
-      <p><strong>By train:</strong> the nearest stations are Fleet (about 10 minutes by taxi, with fast trains from London Waterloo) and Sandhurst (about 3 minutes by taxi).</p>
     </div>
   </section>
 
@@ -805,7 +786,7 @@
   <!-- FOOTER -->
   <footer>
     <div class="footer-logo">C&amp;S</div>
-    <p class="footer-sub">Rivervale Barn · Yateley, Hampshire · 2027</p>
+    <p class="footer-sub">March 25th 2027,<br>Rivervale Barn,<br>Yateley</p>
   </footer>
 
 </div>
@@ -830,7 +811,7 @@ var GUESTS = [
     salutation: "Dear Steven,",
     letterBody: "We are so thrilled to invite you to share in our wedding day. You are one of the people who means the most to us, and we wouldn't want to celebrate this milestone without you there beside us. From the ceremony to the last dance, we hope you feel how much your presence means.",
     inviteTypeLabel: "Full Day Guest — Ceremony, Wedding Breakfast & Evening",
-    letterExtra: "Please do join us from 13:30 at the Ceremony Barn. We've arranged everything to make sure you have the most wonderful day, and we can't wait to see you there.",
+    letterExtra: "Please do join us at Rivervale Barn. We've arranged everything to make sure you have the most wonderful day, and we can't wait to see you there.",
     arrivalHighlight: 0,
     scheduleNote: "Your full day begins at 13:30 — your seat will be reserved in the Ceremony Barn"
   },
@@ -847,7 +828,7 @@ var GUESTS = [
     salutation: "Dear Caitriona,",
     letterBody: "It is with so much joy that we invite you to celebrate our wedding day with us. You hold a very special place in our hearts, and having you there as we say our vows and begin this new chapter together means everything to us. We want you to soak in every moment and know how loved and cherished you are.",
     inviteTypeLabel: "Full Day Guest — Ceremony, Wedding Breakfast & Evening",
-    letterExtra: "Please join us from 13:30 at the Ceremony Barn, where your seat will be waiting for you. We have planned every detail with you in mind, and we are so excited to celebrate together.",
+    letterExtra: "Please join us at Rivervale Barn. We have planned every detail with you in mind, and we are so excited to celebrate together.",
     arrivalHighlight: 0,
     scheduleNote: "Your full day begins at 13:30 — your seat will be reserved in the Ceremony Barn"
   },
@@ -964,7 +945,7 @@ var GUESTS = [
     inviteType: "evening"
   },
   {
-    members: [ { firstName: "Jane", surname: "" }, { firstName: "Richard", surname: "" } ],
+    members: [ { firstName: "Jane", surname: "Adams" }, { firstName: "Richard", surname: "Adams" } ],
     inviteType: "evening"
   },
   {
@@ -1133,8 +1114,6 @@ function loginWithGuest(guest){
   document.getElementById('letterBody').textContent         = guest.letterBody;
   document.getElementById('letterInviteType').textContent   = guest.inviteTypeLabel;
   document.getElementById('letterExtra').textContent        = guest.letterExtra;
-  document.getElementById('scheduleNote').textContent = guest.scheduleNote;
-  buildSchedule(guest.arrivalHighlight, guest.inviteType);
   document.getElementById('rsvpForName').textContent = fullNameOf(guest);
   revealSite();
 }
@@ -1490,9 +1469,9 @@ function buildGuestFromParts(t, firstName, surname){
     salutation: "Dear " + fn + ",",
     letterBody: full
       ? "We are so thrilled to invite you to share in our wedding day. You are one of the people who means the most to us, and we wouldn't want to celebrate this milestone without you. From start to finish, we hope you feel how much your presence means."
-      : "We would be delighted for you to join us for the evening reception as we celebrate our marriage. You are one of the people we most want to party with, and having you there to dance, laugh and toast with us in the evening would mean the world. The doors open at 20:00 and we can't wait to see you.",
+      : "We would be delighted for you to join us for the evening reception as we celebrate our marriage. You are one of the people we most want to party with, and having you there to dance, laugh and toast with us in the evening would mean the world. We can't wait to see you.",
     inviteTypeLabel: full ? "Full Day Guest — Ceremony, Wedding Breakfast & Evening" : "Reception / Evening Guest — Evening Reception & Celebrations",
-    letterExtra: full ? "Please do join us from 13:30 at the Ceremony Barn. We've arranged everything to make sure you have the most wonderful day, and we can't wait to see you there." : "Please join us from 20:00 for the evening reception — an evening of drinks, dancing and celebration. We can't wait to see you there.",
+    letterExtra: full ? "Please do join us at Rivervale Barn. We've arranged everything to make sure you have the most wonderful day, and we can't wait to see you there." : "Please join us at Rivervale Barn for the evening reception — an evening of drinks, dancing and celebration. We can't wait to see you there.",
     arrivalHighlight: full ? 0 : 4,
     scheduleNote: full ? "Your full day begins at 13:30 — your seat will be reserved in the Ceremony Barn" : "Your evening begins at 20:00 — join us for the reception and celebrations"
   };
