@@ -409,11 +409,6 @@
   .slide.active { opacity: 1; z-index: 1; }
   .slide img { width: 100%; height: 100%; object-fit: cover; opacity: 0; transition: opacity 0.6s ease; }
   .slide img.loaded { opacity: 1; }
-  .slide-gradient { position: absolute; inset: 0; background: linear-gradient(to top, rgba(0,0,0,0.75) 0%, rgba(0,0,0,0.05) 50%, transparent 100%); }
-  .slide-caption { position: absolute; bottom: 2rem; left: 2rem; right: 5rem; }
-  .slide-caption h3 { font-family: 'Playfair Display', serif; font-size: clamp(1rem, 2.5vw, 1.4rem); text-transform: uppercase; letter-spacing: 0.12em; margin-bottom: 0.25rem; }
-  .slide-caption p { font-size: 0.6rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--stone-300); }
-  .slide-counter { position: absolute; bottom: 2rem; right: 2rem; font-family: monospace; font-size: 0.7rem; color: var(--stone-500); }
   .slide-spinner { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; }
   .spinner { width: 36px; height: 36px; border-radius: 50%; border: 2px solid var(--stone-600); border-top-color: #fff; animation: spin 0.9s linear infinite; }
   @keyframes spin { to { transform: rotate(360deg); } }
@@ -707,17 +702,13 @@
   </section>
 
   <!-- VENUE -->
-  <section class="venue-section" id="venue">
-    <div class="venue-header">
-      <h2 class="venue-title">The Venue</h2>
-      <p class="venue-addr">Mill Lane,<br>Yateley,<br>Hampshire<br>GU46 7SS</p>
-    </div>
+  <section class="venue-section" id="venue" aria-label="Venue photos">
     <div class="carousel-wrap">
       <div class="carousel-stage" id="carouselStage"></div>
-      <button class="carousel-btn prev" onclick="carouselPrev()">
+      <button class="carousel-btn prev" onclick="carouselPrev()" aria-label="Previous venue photo">
         <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
       </button>
-      <button class="carousel-btn next" onclick="carouselNext()">
+      <button class="carousel-btn next" onclick="carouselNext()" aria-label="Next venue photo">
         <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
       </button>
       <div class="dots" id="dots"></div>
@@ -1518,26 +1509,20 @@ function buildCarousel() {
     var img = document.createElement('img');
     img.src = s.url; img.alt = s.caption;
     img.onload  = function(){ img.classList.add('loaded'); spinner.style.display = 'none'; };
-    img.onerror = function(){ spinner.innerHTML = '<p style="color:#78716c;font-size:.7rem;letter-spacing:.15em;text-transform:uppercase">' + s.caption + '</p>'; };
+    img.onerror = function(){ spinner.style.display = 'none'; img.hidden = true; };
     div.appendChild(img);
 
-    var grad = document.createElement('div'); grad.className = 'slide-gradient'; div.appendChild(grad);
-    var cap  = document.createElement('div'); cap.className  = 'slide-caption';
-    cap.innerHTML = '<h3>' + s.caption + '</h3><p>' + s.desc + '</p>'; div.appendChild(cap);
-    var ctr  = document.createElement('div'); ctr.className  = 'slide-counter';
-    ctr.textContent = pad(i+1) + ' / ' + pad(SLIDES.length); div.appendChild(ctr);
     stage.appendChild(div);
 
     var dot = document.createElement('button');
     dot.className = 'dot' + (i === 0 ? ' active' : ''); dot.id = 'dot-' + i;
+    dot.setAttribute('aria-label', 'Show venue photo ' + (i + 1));
     dot.onclick = (function(idx){ return function(){ goToSlide(idx); }; })(i);
     dots.appendChild(dot);
   });
 
   startTimer();
 }
-
-function pad(n){ return String(n).padStart(2,'0'); }
 
 function goToSlide(n) {
   var old = document.getElementById('slide-' + currentSlide);
