@@ -4,7 +4,7 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Caitriona &amp; Steven — 25th March 2027</title>
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Lato:wght@300;400&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Lato:wght@300;400&family=Allura&display=swap" rel="stylesheet" />
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -426,18 +426,43 @@
   .dot { height: 3px; border-radius: 2px; background: rgba(255,255,255,0.25); border: none; cursor: pointer; transition: all 0.3s; width: 6px; }
   .dot.active { width: 2rem; background: #fff; }
 
-  /* SCHEDULE */
-  .schedule-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 3rem; max-width: 70rem; margin: 0 auto; }
-  .sched-item { border-top: 1px solid var(--stone-100); padding-top: 1.5rem; text-align: left; }
-  .sched-time { font-family: monospace; font-size: 0.7rem; color: var(--stone-400); margin-bottom: 0.4rem; }
-  .sched-title { font-family: 'Playfair Display', serif; font-size: 1.05rem; text-transform: uppercase; margin-bottom: 0.4rem; }
-  .sched-desc { font-size: 0.65rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--stone-500); font-weight: 300; }
-  /* Highlighted row for the guest's arrival time */
-  .sched-item.highlight { background: var(--stone-50); padding: 1rem 1rem 1rem; margin: -1rem; border-top: 2px solid var(--black); }
-  .sched-item.highlight .sched-time { color: var(--black); }
-  .sched-you { font-size: 0.5rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--stone-400); margin-top: 0.3rem; }
+  /* WEDDING TIMELINE */
+  .wedding-timeline { background: #fff; text-align: center; }
+  .timeline-heading { font-family: 'Allura', 'Playfair Display', serif; font-size: clamp(3.1rem, 10vw, 5.4rem); font-weight: 400; line-height: 1.15; margin-bottom: 0.5rem; }
+  .timeline-date { margin-top: 0.35rem; font-size: 0.6rem; letter-spacing: 0.25em; text-transform: uppercase; color: var(--stone-500); }
+  .timeline-note { max-width: 32rem; margin: 1.5rem auto 2.75rem; font-size: 0.85rem; }
+  .timeline-note:empty { display: none; }
+  .schedule-grid { position: relative; display: block; max-width: 44rem; margin: 2.75rem auto 0; padding: 0.75rem 0; list-style: none; }
+  .schedule-grid::before { content: ''; position: absolute; top: 0; bottom: 0; left: 50%; width: 1px; background: var(--stone-600); transform: translateX(-50%); }
+  .sched-item { position: relative; display: grid; grid-template-columns: minmax(0, 1fr) 3.5rem minmax(0, 1fr); align-items: center; min-height: 9.5rem; padding: 1.5rem 0; margin: 0; border: 0; text-align: left; }
+  .sched-item::after { content: ''; position: absolute; top: 50%; left: calc(50% - 1.75rem); width: 1.75rem; height: 1px; background: var(--stone-600); }
+  .sched-item.timeline-right::after { left: 50%; }
+  .sched-entry { display: flex; align-items: center; gap: 1rem; min-width: 0; }
+  .timeline-left .sched-entry { grid-column: 1; text-align: right; }
+  .timeline-right .sched-entry { grid-column: 3; flex-direction: row-reverse; text-align: left; }
+  .sched-copy { flex: 1; min-width: 0; overflow-wrap: break-word; }
+  .sched-icon { flex: 0 0 3.75rem; width: 3.75rem; height: 3.75rem; color: var(--stone-900); }
+  .sched-icon svg { display: block; width: 100%; height: 100%; fill: none; stroke: currentColor; stroke-width: 1.35; stroke-linecap: round; stroke-linejoin: round; }
+  .sched-time { display: block; font-family: 'Playfair Display', serif; font-size: 1.1rem; font-weight: 700; white-space: nowrap; color: var(--black); margin-bottom: 0.25rem; }
+  .sched-title { font-family: 'Playfair Display', serif; font-size: 1rem; font-weight: 400; line-height: 1.45; margin: 0; }
+  .sched-desc { margin-top: 0.4rem; font-size: 0.72rem; font-weight: 300; line-height: 1.65; color: var(--stone-500); }
+  .sched-item.highlight { background: transparent; margin: 0; border: 0; }
+  .sched-item.highlight::before { content: ''; position: absolute; top: 50%; left: 50%; z-index: 1; width: 7px; height: 7px; border: 1px solid var(--black); border-radius: 50%; background: #fff; transform: translate(-50%, -50%); }
+  .sched-item.highlight .sched-title { font-weight: 700; }
+  .sched-you { margin-top: 0.6rem; font-size: 0.5rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--stone-600); }
   .sched-item.dim { opacity: 0.36; }
-  .sched-tag { font-size: 0.5rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--stone-400); margin-top: 0.3rem; }
+  .sched-tag { margin-top: 0.3rem; font-size: 0.5rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--stone-400); }
+
+  @media (max-width: 480px) {
+    .sched-item { grid-template-columns: minmax(0, 1fr) 2rem minmax(0, 1fr); min-height: 9rem; padding: 1.15rem 0; }
+    .sched-item::after { left: calc(50% - 1rem); width: 1rem; }
+    .sched-item.timeline-right::after { left: 50%; }
+    .sched-entry { gap: 0.5rem; }
+    .sched-icon { flex-basis: 2.5rem; width: 2.5rem; height: 2.5rem; }
+    .sched-time { font-size: 0.9rem; }
+    .sched-title { font-size: 0.82rem; }
+    .sched-desc { font-size: 0.625rem; }
+  }
 
   /* REGISTRY */
   .registry-section { background: var(--stone-50); }
@@ -701,12 +726,13 @@
 
  <!-- WEDDING SCHEDULE -->
  <!--
- <section id="schedule">
+ <section id="schedule" class="wedding-timeline">
   <div class="section-inner">
-    <h2 class="section-title">Order Of The Day</h2>
-    <p class="body-text" id="scheduleNote"></p>
+    <h2 class="timeline-heading">Wedding Timeline</h2>
+    <p class="timeline-date"><time datetime="2027-03-25">25th March 2027</time></p>
+    <p class="body-text timeline-note" id="scheduleNote"></p>
   </div>
-  <div class="schedule-grid" id="scheduleGrid"></div>
+  <ol class="schedule-grid" id="scheduleGrid" aria-label="Wedding day timeline"></ol>
  </section>
  -->
 
@@ -845,7 +871,7 @@ var GUESTS = [
     inviteTypeLabel: "Full Day Guest — Ceremony, Wedding Breakfast & Evening",
     letterExtra: "Please do join us at Rivervale Barn. We've arranged everything to make sure you have the most wonderful day, and we can't wait to see you there.",
     arrivalHighlight: 0,
-    scheduleNote: "Your full day begins at 13:30 — your seat will be reserved in the Ceremony Barn"
+    scheduleNote: "Your full day begins at 13:00 — your seat will be reserved in the Ceremony Barn"
   },
   {
     email:    "cnewton0610@gmail.com",
@@ -862,7 +888,7 @@ var GUESTS = [
     inviteTypeLabel: "Full Day Guest — Ceremony, Wedding Breakfast & Evening",
     letterExtra: "Please join us at Rivervale Barn. We have planned every detail with you in mind, and we are so excited to celebrate together.",
     arrivalHighlight: 0,
-    scheduleNote: "Your full day begins at 13:30 — your seat will be reserved in the Ceremony Barn"
+    scheduleNote: "Your full day begins at 13:00 — your seat will be reserved in the Ceremony Barn"
   },
   {
     members: [ { firstName: "Pamela", surname: "Vaughan" }, { firstName: "Michael", surname: "Vaughan" } ],
@@ -1063,12 +1089,15 @@ var emailjsReady = false;
 // SCHEDULE ROWS
 // ════════════════════════════════════════════════════════════════════
 var SCHEDULE = [
-  { time: "13:30", title: "Arrival",           desc: "Guests arrive at the Ceremony Barn" },
-  { time: "14:00", title: "Ceremony",          desc: "The exchange of vows" },
-  { time: "15:30", title: "Reception",         desc: "Drinks and photos in the Courtyard" },
-  { time: "17:30", title: "Wedding Breakfast", desc: "Dinner served in the Dining Barn" },
-  { time: "20:00", title: "Evening Guests",    desc: "Arrival of evening guests" },
-  { time: "20:30", title: "Dancing",           desc: "The party begins" }
+  { time: "13:00", title: "Guests To Arrive",           desc: "" },
+  { time: "14:00", title: "We Do",                      desc: "" },
+  { time: "14:30", title: "Photos, Fizz & Canapes",     desc: "" },
+  { time: "16:30", title: "A Few Words",                desc: "" },
+  { time: "17:00", title: "We Eat",                     desc: "" },
+  { time: "19:30", title: "Evening Guests Arrive",       desc: "" },
+  { time: "20:00", title: "Cake Cutting & First Dance",  desc: "" },
+  { time: "21:00", title: "Evening Food",                desc: "" },
+  { time: "23:45", title: "Carriages",                   desc: "" }
 ];
 
 // ════════════════════════════════════════════════════════════════════
@@ -1402,21 +1431,65 @@ function sendRsvp(){
 // ════════════════════════════════════════════════════════════════════
 // SCHEDULE BUILDER
 // ════════════════════════════════════════════════════════════════════
+function scheduleIcon(index){
+  var drawings = [
+    '<path d="M14 56V27C14 10 50 10 50 27v29M20 56V28C20 17 44 17 44 28v28M11 56h12m18 0h12"/><path d="M15 35c-9-5-10-11-8-15 6 0 10 5 9 12M14 45C6 43 3 38 5 34c6 0 9 4 10 8M49 31c8-4 11-9 9-14-6 0-10 5-10 11M50 43c8-2 12-7 10-11-6 0-10 4-10 8M25 14c-3-6-2-10 2-12 5 3 6 7 3 11"/><path d="M28 56V36c0-5 8-5 8 0v20M28 42h8"/>',
+    '<circle cx="24" cy="38" r="15"/><circle cx="24" cy="38" r="11"/><path d="M34 24a15 15 0 1 1-2 26M37 28a11 11 0 1 1-2 18M40 16l-4-5 5-4h7l5 4-5 5zm-4-5h17m-12-4 3 9 4-9M44 2V0m13 5 3-2M29 5l-3-2M57 18l4 1"/>',
+    '<path d="M5 24h9l4-6h12l4 6h8v26H5zM35 28h3"/><circle cx="23" cy="37" r="9"/><circle cx="23" cy="37" r="6"/><path d="M46 10h12l-1 12c0 7-9 7-10 0zm1 8h10M52 29v12m-5 1h10M44 56h17M47 53v-5h10v5M49 48v-3m6 3v-3"/>',
+    '<rect x="25" y="6" width="14" height="29" rx="7"/><path d="M19 24v5c0 17 26 17 26 0v-5M32 42v13m-10 3h20M25 14h5m4 0h5m-14 6h5m4 0h5M9 18l5 2m-6 9h6M50 20l5-2m-5 11h6"/>',
+    '<circle cx="32" cy="33" r="18"/><circle cx="32" cy="33" r="13"/><path d="M6 10v15c0 5 8 5 8 0V10M10 10v44M2 10v13m16-13v13M57 10c-7 7-8 14-8 20h8m0-20v44M27 30c1-5 8-6 10-1m-10 6c4 5 9 3 11-1"/>',
+    '<circle cx="24" cy="21" r="6"/><circle cx="43" cy="26" r="6"/><path d="M12 55v-8c0-9 4-14 12-14 7 0 11 4 12 11M35 55v-7c0-7 3-10 8-10 7 0 10 4 10 12v5M20 39v16m8-16v16M5 14l1-4 2 3 4 1-3 2-1 4-2-4-4-1zM46 8l2-5 2 5 5 1-4 3v5l-4-3-5 1 2-4-2-3z"/>',
+    '<path d="M7 52h41M11 52V35h32v17M16 35V22h22v13M11 42c5 5 10-5 16 0s10-5 16 0M16 28c4 4 7-4 11 0s7-3 11 0M27 22v-6M27 16c-8-5-6-10-2-9l2 2 2-2c4-1 6 4-2 9M51 13v23m0-23 9-3v23M51 33c-7-2-7 6-1 4m10-7c-7-2-7 6-1 4"/>',
+    '<path d="M11 41a21 21 0 0 1 42 0zM8 46h48M6 50h52M24 56h16M32 18v2"/><circle cx="32" cy="15" r="3"/><path d="M19 35c2-5 5-8 10-9M48 9l2-5 2 5 5 1-4 3v5l-4-3-5 1 2-4-2-3"/>',
+    '<path d="M8 42V31l11-4 8-11h17l9 13 6 3v10h-6m-12 0H26m-12 0H8M22 27h27M30 18l-7 9m13-9v9M10 33h6m36 1h5"/><circle cx="20" cy="42" r="6"/><circle cx="47" cy="42" r="6"/><path d="M7 43l-3 10m-2 0h5v8H2zM31 34h4M11 54l5 3m0-3 4 5"/>'
+  ];
+  return '<svg viewBox="0 0 64 64" aria-hidden="true" focusable="false">' + (drawings[index] || drawings[0]) + '</svg>';
+}
+
 function buildSchedule(highlightIndex, inviteType) {
   var evening = inviteType === 'evening';
   var grid = document.getElementById('scheduleGrid');
   if (!grid) return;
   grid.innerHTML = '';
+  var visibleIndex = 0;
   SCHEDULE.forEach(function(row, i) {
-    if (evening && i < highlightIndex) return; // evening guests only see the evening onwards
-    var div = document.createElement('div');
-    div.className = 'sched-item' + (i === highlightIndex ? ' highlight' : '');
-    div.innerHTML =
-      '<p class="sched-time">' + row.time + '</p>' +
-      '<h3 class="sched-title">' + row.title + '</h3>' +
-      '<p class="sched-desc">' + row.desc + '</p>' +
-      (i === highlightIndex ? '<p class="sched-you">\u2190 You join here</p>' : '');
-    grid.appendChild(div);
+    if (evening && i < highlightIndex) return;
+    var item = document.createElement('li');
+    item.className = 'sched-item ' + (visibleIndex++ % 2 === 0 ? 'timeline-left' : 'timeline-right') +
+      (i === highlightIndex ? ' highlight' : '');
+    var entry = document.createElement('div');
+    entry.className = 'sched-entry';
+    var copy = document.createElement('div');
+    copy.className = 'sched-copy';
+    var time = document.createElement('time');
+    time.className = 'sched-time';
+    time.setAttribute('datetime', row.time);
+    time.textContent = row.time;
+    copy.appendChild(time);
+    var title = document.createElement('h3');
+    title.className = 'sched-title';
+    title.textContent = row.title;
+    copy.appendChild(title);
+    if (row.desc) {
+      var description = document.createElement('p');
+      description.className = 'sched-desc';
+      description.textContent = row.desc;
+      copy.appendChild(description);
+    }
+    if (i === highlightIndex) {
+      var arrival = document.createElement('p');
+      arrival.className = 'sched-you';
+      arrival.textContent = 'Your arrival';
+      copy.appendChild(arrival);
+    }
+    var icon = document.createElement('span');
+    icon.className = 'sched-icon';
+    icon.setAttribute('aria-hidden', 'true');
+    icon.innerHTML = scheduleIcon(i);
+    entry.appendChild(copy);
+    entry.appendChild(icon);
+    item.appendChild(entry);
+    grid.appendChild(item);
   });
 }
 buildSchedule(-1);
@@ -1526,8 +1599,8 @@ function buildGuestFromParts(t, firstName, surname){
       : "We would be delighted for you to join us for the evening reception as we celebrate our marriage. You are one of the people we most want to party with, and having you there to dance, laugh and toast with us in the evening would mean the world. We can't wait to see you.",
     inviteTypeLabel: full ? "Full Day Guest — Ceremony, Wedding Breakfast & Evening" : "Reception / Evening Guest — Evening Reception & Celebrations",
     letterExtra: full ? "Please do join us at Rivervale Barn. We've arranged everything to make sure you have the most wonderful day, and we can't wait to see you there." : "Please join us at Rivervale Barn for the evening reception — an evening of drinks, dancing and celebration. We can't wait to see you there.",
-    arrivalHighlight: full ? 0 : 4,
-    scheduleNote: full ? "Your full day begins at 13:30 — your seat will be reserved in the Ceremony Barn" : "Your evening begins at 20:00 — join us for the reception and celebrations"
+    arrivalHighlight: full ? 0 : 5,
+    scheduleNote: full ? "Your full day begins at 13:00 — your seat will be reserved in the Ceremony Barn" : "Your evening begins at 19:30 — join us for the reception and celebrations"
   };
 }
 
