@@ -470,6 +470,17 @@
   .stay-travel p:last-child { margin-bottom: 0; }
   .stay-travel a { color: var(--black); text-underline-offset: 2px; }
 
+  .stay-rate { margin-bottom: 1.1rem; }
+  .stay-rate summary { display: flex; align-items: center; justify-content: space-between; gap: 1rem; min-height: 44px; padding: 0.75rem 1rem; border: 1px solid var(--black); background: #fff; color: var(--black); cursor: pointer; list-style: none; font-size: 0.58rem; letter-spacing: 0.2em; text-transform: uppercase; }
+  .stay-rate summary::-webkit-details-marker { display: none; }
+  .stay-rate summary::after { content: '+'; font-size: 1.1rem; line-height: 1; letter-spacing: 0; }
+  .stay-rate[open] summary::after { content: '−'; }
+  .stay-rate summary:hover { background: var(--stone-100); }
+  .stay-rate summary:focus-visible { outline: 2px solid var(--black); outline-offset: 3px; }
+  .stay-rate-content { border: 1px solid var(--stone-200); border-top: none; padding: 1rem; font-size: 0.8rem; color: var(--stone-600); font-weight: 300; line-height: 1.8; }
+  .stay-rate-content p + p { margin-top: 0.65rem; }
+  .stay-rate-checked { display: block; margin-top: 0.9rem; padding-top: 0.75rem; border-top: 1px solid var(--stone-100); font-size: 0.65rem; color: var(--stone-500); }
+
   /* RSVP */
   .rsvp-box { border: 1px solid var(--stone-100); padding: 4rem; max-width: 40rem; margin: 0 auto; }
   .rsvp-sub { font-size: 0.6rem; letter-spacing: 0.3em; text-transform: uppercase; color: var(--stone-400); font-weight: 700; }
@@ -717,6 +728,16 @@
         <h3 class="stay-name">The Casa Hotel</h3>
         <p class="stay-addr">Handford Lane, Yateley, Hampshire GU46 6BT</p>
         <p class="stay-note">The closest hotel to the barn and a long-time favourite with Rivervale guests, with its own Italian restaurant on site. Very handy for taxis to and from the venue.</p>
+        <details class="stay-rate">
+          <summary>Discounted rate</summary>
+          <div class="stay-rate-content">
+            <p><strong>Double deluxe at £100 per night including breakfast.</strong></p>
+            <p>1 family room available.</p>
+            <p>Check in from 3pm (earlier check in can be arranged with a fee).</p>
+            <p>11 am check out.</p>
+            <small class="stay-rate-checked">last checked on <time datetime="2026-11-01">1/11/26</time>.</small>
+          </div>
+        </details>
         <a class="stay-link" href="https://www.thecasahoteluk.com/" target="_blank" rel="noopener">Book / Enquire</a>
       </div>
 
