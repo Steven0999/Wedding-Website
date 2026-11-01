@@ -689,13 +689,13 @@
   </section>
 
  <!-- WEDDING SCHEDULE -->
- <!--<section id="schedule">
+ <section id="schedule">
   <div class="section-inner">
     <h2 class="section-title">Order Of The Day</h2>
     <p class="body-text" id="scheduleNote"></p>
   </div>
   <div class="schedule-grid" id="scheduleGrid"></div>
- </section>-->
+ </section>
 
   <!-- ACCOMMODATION -->
   <section id="stay">
@@ -1128,8 +1128,11 @@ function loginWithGuest(guest){
   document.getElementById('letterInviteType').textContent   = guest.inviteTypeLabel;
   document.getElementById('letterExtra').textContent        = guest.letterExtra;
   document.getElementById('rsvpForName').textContent = fullNameOf(guest);
-  document.getElementById('scheduleNote').textContent = guest.scheduleNote;
-buildSchedule(guest.arrivalHighlight, guest.inviteType);
+  var note = document.getElementById('scheduleNote');
+  if (note) note.textContent = guest.scheduleNote;
+  if (document.getElementById('scheduleGrid')) {
+    buildSchedule(guest.arrivalHighlight, guest.inviteType);
+  }
   revealSite();
 }
 
@@ -1379,6 +1382,7 @@ function sendRsvp(){
 function buildSchedule(highlightIndex, inviteType) {
   var evening = inviteType === 'evening';
   var grid = document.getElementById('scheduleGrid');
+  if (!grid) return;
   grid.innerHTML = '';
   SCHEDULE.forEach(function(row, i) {
     if (evening && i < highlightIndex) return; // evening guests only see the evening onwards
