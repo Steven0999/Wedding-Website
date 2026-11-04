@@ -1,6 +1,6 @@
 // PAYPAL WEDDING GIFTS
 // Paste your full HTTPS PayPal.Me or PayPal pool link between these quotes:
-var PAYPAL_GIFT_LINK = "";
+var PAYPAL_GIFT_LINK = "https://www.paypal.com/pool/9u6tSF6RJm?sr=wccr";
 
 (function initialisePayPalGifts(){
   var wrap = document.getElementById('giftLinkWrap');
