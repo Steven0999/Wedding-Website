@@ -822,7 +822,7 @@
         </div>
         <textarea class="rsvp-textarea" id="rsvpDietary" placeholder="Any dietary requirements or allergies we should know about (optional)" style="margin-bottom:1rem"></textarea>
         <button class="btn-send" onclick="sendRsvp()">Send My Response</button>
-        <p class="rsvp-msg" id="rsvpMsg"></p>
+        <p class="rsvp-msg" id="rsvpMsg" role="status">Choose your response, then tap Send My Response.</p>
       </div>
 
       <!-- Confirmation (after they respond) -->
@@ -1346,23 +1346,15 @@ function setRsvp(choice){
   var acc = choice.indexOf('Accept') > -1;
   a.classList.toggle('sel', acc);  a.classList.toggle('unsel', !acc);
   d.classList.toggle('sel', !acc); d.classList.toggle('unsel', acc);
-  document.getElementById('rsvpMsg').textContent = '';
+  var msg = document.getElementById('rsvpMsg');
+  msg.classList.remove('error');
+  msg.textContent = acc
+    ? 'Add any dietary notes, then tap Send My Response.'
+    : 'Tap Send My Response to send your RSVP.';
 }
 
-function openRsvpMailto(name, dietary, inviteType){
-  var subject = "Wedding RSVP — " + name + " — " + rsvpResponse;
-  var body =
-    "Name: " + name + "\n" +
-    "Response: " + rsvpResponse + "\n" +
-    "Invite: " + inviteType + "\n" +
-    "Dietary requirements / notes: " + dietary + "\n";
-  window.location.href = "mailto:" + RSVP_RECIPIENT +
-    "?subject=" + encodeURIComponent(subject) +
-    "&body=" + encodeURIComponent(body);
-}
-
-function showRsvpDone(){
-  var accepted = rsvpResponse.indexOf('Accept') > -1;
+function showRsvpDone(choice){
+  var accepted = choice.indexOf('Accept') > -1;
   document.getElementById('rsvpDoneTitle').textContent = accepted
     ? "Thank you — we're so happy you'll be there!"
     : "Thank you for letting us know — you'll be missed.";
@@ -1370,57 +1362,75 @@ function showRsvpDone(){
   document.getElementById('rsvpDone').style.display = 'block';
 }
 
-function sendRsvp(){
-  var dietary = document.getElementById('rsvpDietary').value.trim();
-  var msg     = document.getElementById('rsvpMsg');
+async function sendRsvp(){
+  var form = document.getElementById('rsvpForm');
+  var btn = form.querySelector('.btn-send');
+  if (btn.disabled || form.style.display === 'none') return;
+
+  var msg = document.getElementById('rsvpMsg');
+  var dietary = document.getElementById('rsvpDietary');
+  var choice = rsvpResponse;
   msg.classList.remove('error');
 
-  if (!rsvpResponse) {
+  if (!choice) {
     msg.classList.add('error');
     msg.textContent = "Please choose 'Joyfully Accepts' or 'Regretfully Declines' first.";
     return;
   }
-
-  var name        = fullNameOf(currentGuest);
-  var inviteType  = currentGuest ? (currentGuest.inviteType === 'evening' ? 'Reception / Evening' : 'Full Day') : '';
-  var dietaryText = dietary || "None provided";
-
-  var btn = document.querySelector('#rsvpForm .btn-send');
-  if (btn) btn.disabled = true;
-  msg.textContent = "Sending…";
-
-  // Sends straight to the admin inbox in the background — the guest never leaves the page.
-  fetch("https://formsubmit.co/ajax/" + encodeURIComponent(RSVP_RECIPIENT), {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-    body: JSON.stringify({
-      _subject: "Wedding RSVP — " + name + " — " + rsvpResponse,
-      _template: "table",
-      _captcha: "false",
-      Name: name,
-      Response: rsvpResponse,
-      Invite: inviteType,
-      "Dietary requirements": dietaryText
-    })
-  })
-  .then(function(r){ return r.json(); })
-  .then(function(d){
-    if (btn) btn.disabled = false;
-    if (d && (d.success === true || d.success === 'true')) {
-      showRsvpDone();
-    } else {
-      // Not sent (e.g. inbox not confirmed yet) — open the email app as a backup.
-      openRsvpMailto(name, dietaryText, inviteType);
-      msg.classList.add('error');
-      msg.textContent = "We couldn't send that automatically — your email app has opened as a backup.";
-    }
-  })
-  .catch(function(){
-    if (btn) btn.disabled = false;
-    openRsvpMailto(name, dietaryText, inviteType);
+  if (!currentGuest) {
     msg.classList.add('error');
-    msg.textContent = "We couldn't send that automatically — your email app has opened as a backup.";
-  });
+    msg.textContent = 'Please open your invitation before sending your RSVP.';
+    return;
+  }
+
+  var name = fullNameOf(currentGuest);
+  var inviteType = currentGuest.inviteType === 'evening' ? 'Reception / Evening' : 'Full Day';
+  var controls = [btn, dietary, document.getElementById('rsvpAccept'), document.getElementById('rsvpDecline')];
+  var payload = {
+    _subject: 'Wedding RSVP — ' + name + ' — ' + choice,
+    _template: 'table',
+    _captcha: 'false',
+    _url: window.location.origin + window.location.pathname,
+    Name: name,
+    Response: choice,
+    Invite: inviteType,
+    'Dietary requirements': dietary.value.trim() || 'None provided'
+  };
+
+  controls.forEach(function(control){ control.disabled = true; });
+  msg.textContent = 'Sending…';
+  var controller = new AbortController();
+  var timeout = setTimeout(function(){ controller.abort(); }, 15000);
+
+  try {
+    var response = await fetch('https://formsubmit.co/ajax/' + RSVP_RECIPIENT, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+      body: JSON.stringify(payload),
+      signal: controller.signal
+    });
+    var data = await response.json();
+    var detail = data ? String(data.message || '') + ' ' + String(data.error || '') : '';
+    if (/\b(?:confirm|activate|verify)\s+(?:your|the|this)\s+(?:form|email(?: address)?)\b|\b(?:form|email(?: address)?)\s+(?:(?:is|has been)\s+)?not\s+(?:active|activated|confirmed|verified)\b|\bactivation\s+(?:email|link)\b/i.test(detail)) {
+      throw new Error('RSVP_ACTIVATION_REQUIRED');
+    }
+    if (!response.ok || !data || (data.success !== true && data.success !== 'true')) {
+      throw new Error('RSVP_NOT_CONFIRMED');
+    }
+    showRsvpDone(choice);
+  } catch (error) {
+    msg.classList.add('error');
+    if (error && error.message === 'RSVP_ACTIVATION_REQUIRED') {
+      msg.textContent = 'Online RSVPs are temporarily unavailable. Please contact Caitriona or Steven directly.';
+    } else if (controller.signal.aborted) {
+      msg.textContent = 'We couldn’t confirm your RSVP in time. Please check with Caitriona or Steven before sending again.';
+    } else {
+      msg.textContent = 'We couldn’t confirm your RSVP. Your selection and notes are still here. Please try again or contact Caitriona or Steven directly.';
+    }
+  } finally {
+    clearTimeout(timeout);
+    controls.forEach(function(control){ control.disabled = false; });
+  }
 }
 
 // ════════════════════════════════════════════════════════════════════
