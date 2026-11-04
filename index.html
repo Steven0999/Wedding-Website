@@ -823,6 +823,10 @@
         <textarea class="rsvp-textarea" id="rsvpDietary" placeholder="Any dietary requirements or allergies we should know about (optional)" style="margin-bottom:1rem"></textarea>
         <button class="btn-send" onclick="sendRsvp()">Send My Response</button>
         <p class="rsvp-msg" id="rsvpMsg" role="status">Choose your response, then tap Send My Response.</p>
+        <div id="rsvpRecovery" hidden style="margin-top:1rem;text-align:center">
+          <button type="button" class="btn-outline" onclick="copyRsvp()">Copy my RSVP</button>
+          <textarea id="rsvpCopyText" class="rsvp-textarea" aria-label="RSVP text to copy" style="margin-top:1rem" readonly hidden></textarea>
+        </div>
       </div>
 
       <!-- Confirmation (after they respond) -->
@@ -1038,6 +1042,8 @@ var GUESTS = [
 // ════════════════════════════════════════════════════════════════════
 var CONTACT_RECIPIENT = "admin@vaughanwedding.co.uk"; // "Need a hand?" requests go here
 var RSVP_RECIPIENT    = "admin@vaughanwedding.co.uk"; // RSVPs go here
+// Web3Forms form access key created for the RSVP inbox. Leave blank until configured.
+var RSVP_WEB3FORMS_ACCESS_KEY = "";
 var EMAILJS_CONFIG = {
   publicKey:         "YOUR_PUBLIC_KEY",
   serviceId:         "YOUR_SERVICE_ID",
@@ -1341,6 +1347,8 @@ var rsvpResponse = null;
 
 function setRsvp(choice){
   rsvpResponse = choice;
+  document.getElementById('rsvpRecovery').hidden = true;
+  document.getElementById('rsvpCopyText').hidden = true;
   var a = document.getElementById('rsvpAccept');
   var d = document.getElementById('rsvpDecline');
   var acc = choice.indexOf('Accept') > -1;
@@ -1360,6 +1368,28 @@ function showRsvpDone(choice){
     : "Thank you for letting us know — you'll be missed.";
   document.getElementById('rsvpForm').style.display = 'none';
   document.getElementById('rsvpDone').style.display = 'block';
+}
+
+async function copyRsvp(){
+  if (!currentGuest || !rsvpResponse) return;
+  var notes = document.getElementById('rsvpDietary').value.trim();
+  var text = 'Wedding RSVP: ' + fullNameOf(currentGuest) + '\n' +
+    'Response: ' + rsvpResponse + '\n' +
+    'Dietary requirements: ' + (notes || 'None provided');
+  var msg = document.getElementById('rsvpMsg');
+  var copyText = document.getElementById('rsvpCopyText');
+  try {
+    await navigator.clipboard.writeText(text);
+    copyText.hidden = true;
+    msg.classList.remove('error');
+    msg.textContent = 'RSVP copied. Please send it directly to Caitriona or Steven.';
+  } catch (error) {
+    copyText.value = text;
+    copyText.hidden = false;
+    copyText.focus();
+    copyText.select();
+    msg.textContent = 'Copy the text below and send it directly to Caitriona or Steven.';
+  }
 }
 
 async function sendRsvp(){
@@ -1386,16 +1416,28 @@ async function sendRsvp(){
   var name = fullNameOf(currentGuest);
   var inviteType = currentGuest.inviteType === 'evening' ? 'Reception / Evening' : 'Full Day';
   var controls = [btn, dietary, document.getElementById('rsvpAccept'), document.getElementById('rsvpDecline')];
+  var key = RSVP_WEB3FORMS_ACCESS_KEY.trim();
+  var endpoint = key ? 'https://api.web3forms.com/submit' : 'https://formsubmit.co/ajax/' + RSVP_RECIPIENT;
+  var subject = 'Wedding RSVP — ' + name + ' — ' + choice;
   var payload = {
-    _subject: 'Wedding RSVP — ' + name + ' — ' + choice,
-    _template: 'table',
-    _captcha: 'false',
-    _url: window.location.origin + window.location.pathname,
     Name: name,
     Response: choice,
     Invite: inviteType,
     'Dietary requirements': dietary.value.trim() || 'None provided'
   };
+  if (key) {
+    payload.access_key = key;
+    payload.subject = subject;
+    payload.from_name = 'Wedding RSVP';
+  } else {
+    payload._subject = subject;
+    payload._template = 'table';
+    payload._captcha = 'false';
+    payload._url = window.location.origin + window.location.pathname;
+  }
+
+  document.getElementById('rsvpRecovery').hidden = true;
+  document.getElementById('rsvpCopyText').hidden = true;
 
   controls.forEach(function(control){ control.disabled = true; });
   msg.textContent = 'Sending…';
@@ -1403,7 +1445,7 @@ async function sendRsvp(){
   var timeout = setTimeout(function(){ controller.abort(); }, 15000);
 
   try {
-    var response = await fetch('https://formsubmit.co/ajax/' + RSVP_RECIPIENT, {
+    var response = await fetch(endpoint, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
       body: JSON.stringify(payload),
@@ -1411,7 +1453,7 @@ async function sendRsvp(){
     });
     var data = await response.json();
     var detail = data ? String(data.message || '') + ' ' + String(data.error || '') : '';
-    if (/\b(?:confirm|activate|verify)\s+(?:your|the|this)\s+(?:form|email(?: address)?)\b|\b(?:form|email(?: address)?)\s+(?:(?:is|has been)\s+)?not\s+(?:active|activated|confirmed|verified)\b|\bactivation\s+(?:email|link)\b/i.test(detail)) {
+    if (!key && /\b(?:confirm|activate|verify)\s+(?:your|the|this)\s+(?:form|email(?: address)?)\b|\b(?:form|email(?: address)?)\s+(?:(?:is|has been)\s+)?not\s+(?:active|activated|confirmed|verified)\b|\bactivation\s+(?:email|link)\b/i.test(detail)) {
       throw new Error('RSVP_ACTIVATION_REQUIRED');
     }
     if (!response.ok || !data || (data.success !== true && data.success !== 'true')) {
@@ -1420,6 +1462,7 @@ async function sendRsvp(){
     showRsvpDone(choice);
   } catch (error) {
     msg.classList.add('error');
+    document.getElementById('rsvpRecovery').hidden = false;
     if (error && error.message === 'RSVP_ACTIVATION_REQUIRED') {
       msg.textContent = 'Online RSVPs are temporarily unavailable. Please contact Caitriona or Steven directly.';
     } else if (controller.signal.aborted) {
