@@ -18,7 +18,7 @@ var PAYPAL_GIFT_LINK = "https://www.paypal.com/pool/9u6tSF6RJm?sr=wccr";
     document.head.appendChild(style);
   }
 
-  link.textContent = 'Donate to our future';
+  link.textContent = 'Honeymoon Gift';
   link.classList.remove('gift-link');
   link.classList.add('paypal-gift-button');
   link.target = '_blank';
@@ -39,7 +39,7 @@ var PAYPAL_GIFT_LINK = "https://www.paypal.com/pool/9u6tSF6RJm?sr=wccr";
     link.href = url.href;
     link.removeAttribute('aria-disabled');
     link.removeAttribute('tabindex');
-    link.setAttribute('aria-label', 'Donate to our future using PayPal (opens in a new tab)');
+    link.setAttribute('aria-label', 'Honeymoon Gift using PayPal (opens in a new tab)');
   } catch (e) {
     // An incomplete or invalid link leaves the button inactive.
   }
