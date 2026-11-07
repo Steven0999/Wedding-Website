@@ -46,13 +46,21 @@ var PAYPAL_GIFT_LINK = "https://www.paypal.com/pool/9u6tSF6RJm?sr=wccr";
 })();
 
 (function initialiseGuestAccommodation(){
-  var stayHeading = document.querySelector('#stay .section-title');
+  var staySection = document.getElementById('stay');
+  var stayHeading = staySection && staySection.querySelector('.section-title');
   var invitationHeading = document.getElementById('heroNamedTo');
   if (!stayHeading || !invitationHeading) return;
 
+  var stayStyles = document.createElement('style');
+  stayStyles.textContent =
+    '#stay.lodge-only > .section-inner > .body-text, ' +
+    '#stay.lodge-only > .stay-grid, ' +
+    '#stay.lodge-only > .stay-travel { display: none; }';
+  document.head.appendChild(stayStyles);
+
   var note = document.createElement('div');
   note.className = 'stay-travel';
-  note.style.margin = '0 auto 2rem';
+  note.style.margin = '0 auto';
   [
     'We are delighted you are staying at the Rivervale Lodge:',
     'Check in is from 3pm on the day of the wedding and check out by 10am the next morning.',
@@ -65,7 +73,9 @@ var PAYPAL_GIFT_LINK = "https://www.paypal.com/pool/9u6tSF6RJm?sr=wccr";
 
   function updateGuestAccommodation(){
     var guest = window.currentGuest;
-    if (guest && guest.firstName === 'Steven' && guest.surname === 'Vaughan') {
+    var showLodgeOnly = Boolean(guest && guest.firstName === 'Steven' && guest.surname === 'Vaughan');
+    staySection.classList.toggle('lodge-only', showLodgeOnly);
+    if (showLodgeOnly) {
       stayHeading.after(note);
     } else {
       note.remove();
