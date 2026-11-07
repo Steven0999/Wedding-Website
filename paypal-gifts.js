@@ -73,7 +73,10 @@ var PAYPAL_GIFT_LINK = "https://www.paypal.com/pool/9u6tSF6RJm?sr=wccr";
 
   function updateGuestAccommodation(){
     var guest = window.currentGuest;
-    var showLodgeOnly = Boolean(guest && guest.firstName === 'Steven' && guest.surname === 'Vaughan');
+    var showLodgeOnly = Boolean(guest && (
+      (guest.firstName === 'Steven' && guest.surname === 'Vaughan') ||
+      (guest.firstName === 'Caitriona' && guest.surname === 'Barry')
+    ));
     staySection.classList.toggle('lodge-only', showLodgeOnly);
     if (showLodgeOnly) {
       stayHeading.after(note);
