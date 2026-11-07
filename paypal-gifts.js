@@ -89,3 +89,33 @@ var PAYPAL_GIFT_LINK = "https://www.paypal.com/pool/9u6tSF6RJm?sr=wccr";
   new MutationObserver(updateGuestAccommodation).observe(invitationHeading, { childList: true });
   updateGuestAccommodation();
 })();
+
+(function initialiseInvitationScroll(){
+  var site = document.getElementById('site');
+  if (!site) return;
+
+  function scrollToTop(){
+    window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+  }
+
+  function resetEntry(){
+    // The inline invitation code has already processed any QR link.
+    if (location.hash) history.replaceState(history.state, '', location.pathname + location.search);
+    scrollToTop();
+  }
+
+  resetEntry();
+  window.addEventListener('pageshow', function(event){
+    if (event.persisted || !site.classList.contains('visible')) {
+      window.requestAnimationFrame(resetEntry);
+    }
+  });
+
+  var revealObserver = new MutationObserver(function(){
+    if (site.classList.contains('visible')) {
+      scrollToTop();
+      revealObserver.disconnect();
+    }
+  });
+  revealObserver.observe(site, { attributes: true, attributeFilter: ['class'] });
+})();
