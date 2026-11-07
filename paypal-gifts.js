@@ -44,3 +44,35 @@ var PAYPAL_GIFT_LINK = "https://www.paypal.com/pool/9u6tSF6RJm?sr=wccr";
     // An incomplete or invalid link leaves the button inactive.
   }
 })();
+
+(function initialiseGuestAccommodation(){
+  var stayHeading = document.querySelector('#stay .section-title');
+  var invitationHeading = document.getElementById('heroNamedTo');
+  if (!stayHeading || !invitationHeading) return;
+
+  var note = document.createElement('div');
+  note.className = 'stay-travel';
+  note.style.margin = '0 auto 2rem';
+  [
+    'We are delighted you are staying at the Rivervale Lodge:',
+    'Check in is from 3pm on the day of the wedding and check out by 10am the next morning.',
+    "Breakfast is served 8am-9am in the breakfast room of the lodge, we can't wait to share our first breakfast as Mr & Mrs Vaughan with you!"
+  ].forEach(function(text) {
+    var paragraph = document.createElement('p');
+    paragraph.textContent = text;
+    note.appendChild(paragraph);
+  });
+
+  function updateGuestAccommodation(){
+    var guest = window.currentGuest;
+    if (guest && guest.firstName === 'Steven' && guest.surname === 'Vaughan') {
+      stayHeading.after(note);
+    } else {
+      note.remove();
+    }
+  }
+
+  // Opening an invitation updates its heading. Handle QR sign-ins that already ran too.
+  new MutationObserver(updateGuestAccommodation).observe(invitationHeading, { childList: true });
+  updateGuestAccommodation();
+})();
