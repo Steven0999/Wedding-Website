@@ -51,6 +51,23 @@ var PAYPAL_GIFT_LINK = "https://www.paypal.com/pool/9u6tSF6RJm?sr=wccr";
   var invitationHeading = document.getElementById('heroNamedTo');
   if (!stayHeading || !invitationHeading) return;
 
+  var lodgeInvitations = new Set(['Steven Vaughan', 'Caitriona Barry', 'Rian Nobes', 'Kye Newton']);
+  var lodgeParties = [
+    ['Heather Fraser', 'Brendan Kane'],
+    ['Kelsey Killick', 'Nick Ryall'],
+    ['Kian Newton', 'Harriet Gaines'],
+    ['Paul Barry', 'Elle Barry']
+  ];
+  GUESTS.forEach(function(invitation) {
+    if (!invitation.members) return;
+    var members = invitation.members.map(fullNameOf);
+    if (lodgeParties.some(function(party) {
+      return party.every(function(name) { return members.includes(name); });
+    })) {
+      lodgeInvitations.add(jointNames(invitation.members).full);
+    }
+  });
+
   var stayStyles = document.createElement('style');
   stayStyles.textContent =
     '#stay.lodge-only > .section-inner > .body-text, ' +
@@ -71,12 +88,17 @@ var PAYPAL_GIFT_LINK = "https://www.paypal.com/pool/9u6tSF6RJm?sr=wccr";
     note.appendChild(paragraph);
   });
 
+  function hasLodgeAccommodation(guest){
+    if (!guest) return false;
+    if (lodgeInvitations.has(fullNameOf(guest))) return true;
+
+    // A QR link can identify one member of a shared invitation.
+    var matches = collectMatches(normName(guest.firstName), normName(guest.surname));
+    return matches.length === 1 && lodgeInvitations.has(matches[0].label);
+  }
+
   function updateGuestAccommodation(){
-    var guest = window.currentGuest;
-    var showLodgeOnly = Boolean(guest && (
-      (guest.firstName === 'Steven' && guest.surname === 'Vaughan') ||
-      (guest.firstName === 'Caitriona' && guest.surname === 'Barry')
-    ));
+    var showLodgeOnly = hasLodgeAccommodation(window.currentGuest);
     staySection.classList.toggle('lodge-only', showLodgeOnly);
     if (showLodgeOnly) {
       stayHeading.after(note);
