@@ -506,6 +506,22 @@
   .stay-rate-checked { display: block; margin-top: 0.9rem; padding-top: 0.75rem; border-top: 1px solid var(--stone-100); font-size: 0.65rem; color: var(--stone-500); }
 
   /* RSVP */
+  #rsvp { scroll-margin-top: 5rem; }
+  .rsvp-instructions { text-align: center; font-size: 0.85rem; color: var(--stone-600); line-height: 1.65; }
+  .rsvp-guest-fields { display: grid; gap: 1.5rem; margin: 1.75rem 0; }
+  .rsvp-guest { min-width: 0; border: 1px solid var(--stone-200); padding: 1.15rem; }
+  .rsvp-guest legend { max-width: 100%; padding: 0 0.45rem; font-family: 'Playfair Display', serif; font-size: 1.15rem; line-height: 1.35; overflow-wrap: break-word; }
+  .rsvp-guest .rsvp-accept-row { gap: 0.65rem; margin-bottom: 1rem; }
+  .rsvp-guest .btn-accept, .rsvp-guest .btn-decline { min-width: 0; min-height: 44px; padding: 0.8rem 0.45rem; letter-spacing: 0.1em; line-height: 1.5; overflow-wrap: break-word; }
+  .rsvp-guest .btn-decline { color: var(--stone-600); }
+  .rsvp-guest .btn-decline.sel { color: var(--black); }
+  .rsvp-guest .btn-accept.unsel, .rsvp-guest .btn-decline.unsel { opacity: 0.75; }
+  .rsvp-guest .btn-accept:focus-visible, .rsvp-guest .btn-decline:focus-visible { outline: 2px solid var(--black); outline-offset: 3px; }
+  .rsvp-dietary-label { display: block; margin-bottom: 0.45rem; color: var(--stone-600); font-size: 0.75rem; line-height: 1.5; }
+  .rsvp-guest .rsvp-textarea { display: block; min-height: 84px; padding: 0.85rem; resize: vertical; border-color: var(--stone-200); }
+  .rsvp-guest .rsvp-textarea:focus { border-color: var(--black); }
+  .rsvp-guest .rsvp-textarea:disabled { background: var(--stone-50); cursor: not-allowed; }
+  .rsvp-done-summary { margin-bottom: 1.25rem; font-size: 0.9rem; line-height: 1.75; color: var(--stone-600); white-space: pre-line; }
   .rsvp-box { border: 1px solid var(--stone-100); padding: 4rem; max-width: 40rem; margin: 0 auto; }
   .rsvp-sub { font-size: 0.6rem; letter-spacing: 0.3em; text-transform: uppercase; color: var(--stone-400); font-weight: 700; }
   .rsvp-fields { margin: 3rem 0; display: flex; flex-direction: column; gap: 2rem; }
@@ -539,7 +555,11 @@
   .footer-sub { font-size: 0.55rem; letter-spacing: 0.5em; text-transform: uppercase; color: var(--stone-400); line-height: 2.2; }
 
   @media (max-width: 640px) {
-    nav { padding: 1rem; } nav.scrolled { padding: 0.75rem 1rem; } .nav-links { display: none; }
+    nav { padding: 1rem; } nav.scrolled { padding: 0.75rem 1rem; }
+    #mainNav .nav-links { display: flex; }
+    #mainNav .nav-links a:not([href="#rsvp"]) { display: none; }
+    #mainNav .nav-links a[href="#rsvp"] { display: inline-flex; align-items: center; min-height: 44px; padding: 0 0.6rem; }
+    .rsvp-guest { padding: 0.85rem; }
     .rsvp-box { padding: 2rem 1.5rem; } .venue-header { flex-direction: column; align-items: flex-start; }
     .envelope-card { padding: 2rem; } .letter-box { padding: 2rem; }
   }
@@ -818,13 +838,10 @@
       <!-- Form -->
       <div id="rsvpForm">
         <p class="rsvp-for">RSVP for <span id="rsvpForName"></span></p>
-        <div class="rsvp-accept-row" style="margin-bottom:2rem">
-          <button class="btn-accept" id="rsvpAccept" onclick="setRsvp('Joyfully Accepts')">Joyfully Accepts</button>
-          <button class="btn-decline" id="rsvpDecline" onclick="setRsvp('Regretfully Declines')">Regretfully Declines</button>
-        </div>
-        <textarea class="rsvp-textarea" id="rsvpDietary" placeholder="Any dietary requirements or allergies we should know about (optional)" style="margin-bottom:1rem"></textarea>
-        <button class="btn-send" onclick="sendRsvp()">Send My Response</button>
-        <p class="rsvp-msg" id="rsvpMsg" role="status">Choose your response, then tap Send My Response.</p>
+        <p class="rsvp-instructions">Choose a response for each guest and add any dietary requirements for guests who are attending.</p>
+        <div class="rsvp-guest-fields" id="rsvpGuestFields"></div>
+        <button type="button" class="btn-send" onclick="sendRsvp()">Send RSVP</button>
+        <p class="rsvp-msg" id="rsvpMsg" role="status"></p>
         <div id="rsvpRecovery" hidden style="margin-top:1rem;text-align:center">
           <button type="button" class="btn-outline" onclick="copyRsvp()">Copy my RSVP</button>
           <textarea id="rsvpCopyText" class="rsvp-textarea" aria-label="RSVP text to copy" style="margin-top:1rem" readonly hidden></textarea>
@@ -832,8 +849,9 @@
       </div>
 
       <!-- Confirmation (after they respond) -->
-      <div id="rsvpDone" style="display:none;text-align:center">
+      <div id="rsvpDone" tabindex="-1" style="display:none;text-align:center">
         <p class="rsvp-done-title" id="rsvpDoneTitle"></p>
+        <p class="rsvp-done-summary" id="rsvpDoneSummary"></p>
         <p class="rsvp-done-note">
           Please contact Caitriona or Steven if you have any questions
           directly, or email <a href="mailto:admin@vaughanwedding.co.uk">admin@vaughanwedding.co.uk</a>.
@@ -1187,12 +1205,22 @@ function loginWithGuest(guest){
   document.getElementById('letterInviteType').textContent   = guest.inviteTypeLabel;
   document.getElementById('letterExtra').textContent        = guest.letterExtra;
   document.getElementById('rsvpForName').textContent = fullNameOf(guest);
+  renderGuestRsvp(guest);
   var note = document.getElementById('scheduleNote');
   if (note) note.textContent = guest.scheduleNote;
   if (document.getElementById('scheduleGrid')) {
     buildSchedule(guest.arrivalHighlight, guest.inviteType);
   }
   revealSite();
+}
+
+function sharedInviteMatch(invitation){
+  var names = jointNames(invitation.members);
+  var guest = buildGuestFromParts(invitation.inviteType === 'evening' ? 'e' : 'f', names.first, names.shared);
+  guest.namedTo = 'This invitation belongs to ' + names.full;
+  guest.name = names.full;
+  guest.members = invitation.members;
+  return { guest: guest, label: names.full };
 }
 
 // Login by first name + surname (looked up in the guest list)
@@ -1205,11 +1233,7 @@ function collectMatches(first, last){
       if (g.members) {
         for (var j = 0; j < g.members.length; j++) {
           if (normName(g.members[j].firstName) === first && normName(g.members[j].surname) === last) {
-            var jn = jointNames(g.members);
-            var hg = buildGuestFromParts(g.inviteType === 'evening' ? 'e' : 'f', jn.first, jn.shared);
-            hg.namedTo = "This invitation belongs to " + jn.full;
-            hg.name = jn.full;
-            out.push({ guest: hg, label: jn.full });
+            out.push(sharedInviteMatch(g));
             break;
           }
         }
@@ -1225,11 +1249,7 @@ function collectMatches(first, last){
       if (gg.members) {
         for (var jj = 0; jj < gg.members.length; jj++) {
           if (!gg.members[jj].surname && normName(gg.members[jj].firstName) === first) {
-            var jn2 = jointNames(gg.members);
-            var hg2 = buildGuestFromParts(gg.inviteType === 'evening' ? 'e' : 'f', jn2.first, jn2.shared);
-            hg2.namedTo = "This invitation belongs to " + jn2.full;
-            hg2.name = jn2.full;
-            out.push({ guest: hg2, label: jn2.full });
+            out.push(sharedInviteMatch(gg));
             break;
           }
         }
@@ -1349,39 +1369,121 @@ function submitHelpRequest(){
 // ════════════════════════════════════════════════════════════════════
 // RSVP  →  sent to RSVP_RECIPIENT
 // ════════════════════════════════════════════════════════════════════
-var rsvpResponse = null;
+var rsvpGuests = [];
+var RSVP_ACCEPT = 'Joyfully Accepts';
+var RSVP_DECLINE = 'Regretfully Declines';
 
-function setRsvp(choice){
-  rsvpResponse = choice;
+function renderGuestRsvp(guest){
+  var form = document.getElementById('rsvpForm');
+  var fields = document.getElementById('rsvpGuestFields');
+  var message = document.getElementById('rsvpMsg');
+  var names = guest.members && guest.members.length
+    ? guest.members.map(function(member){ return (member.firstName + ' ' + (member.surname || '')).trim(); })
+    : [fullNameOf(guest)];
+
+  rsvpGuests = [];
+  fields.textContent = '';
+  form.style.display = '';
+  document.getElementById('rsvpDone').style.display = 'none';
   document.getElementById('rsvpRecovery').hidden = true;
   document.getElementById('rsvpCopyText').hidden = true;
-  var a = document.getElementById('rsvpAccept');
-  var d = document.getElementById('rsvpDecline');
-  var acc = choice.indexOf('Accept') > -1;
-  a.classList.toggle('sel', acc);  a.classList.toggle('unsel', !acc);
-  d.classList.toggle('sel', !acc); d.classList.toggle('unsel', acc);
-  var msg = document.getElementById('rsvpMsg');
-  msg.classList.remove('error');
-  msg.textContent = acc
-    ? 'Add any dietary notes, then tap Send My Response.'
-    : 'Tap Send My Response to send your RSVP.';
+  message.classList.remove('error');
+  message.textContent = '';
+
+  names.forEach(function(name, index){
+    var fieldset = document.createElement('fieldset');
+    fieldset.className = 'rsvp-guest';
+    var legend = document.createElement('legend');
+    legend.textContent = name;
+    fieldset.appendChild(legend);
+
+    var row = document.createElement('div');
+    row.className = 'rsvp-accept-row';
+    var accept = document.createElement('button');
+    accept.type = 'button';
+    accept.className = 'btn-accept';
+    accept.textContent = RSVP_ACCEPT;
+    accept.setAttribute('aria-pressed', 'false');
+    accept.onclick = function(){ setGuestRsvp(index, RSVP_ACCEPT); };
+    var decline = document.createElement('button');
+    decline.type = 'button';
+    decline.className = 'btn-decline';
+    decline.textContent = RSVP_DECLINE;
+    decline.setAttribute('aria-pressed', 'false');
+    decline.onclick = function(){ setGuestRsvp(index, RSVP_DECLINE); };
+    row.appendChild(accept);
+    row.appendChild(decline);
+    fieldset.appendChild(row);
+
+    var notes = document.createElement('textarea');
+    notes.id = 'rsvp-dietary-' + (index + 1);
+    notes.className = 'rsvp-textarea';
+    notes.rows = 2;
+    var label = document.createElement('label');
+    label.className = 'rsvp-dietary-label';
+    label.htmlFor = notes.id;
+    label.textContent = 'Dietary requirements or allergies (optional)';
+    fieldset.appendChild(label);
+    fieldset.appendChild(notes);
+    fields.appendChild(fieldset);
+    rsvpGuests.push({ name: name, response: null, fieldset: fieldset, accept: accept, decline: decline, notes: notes });
+  });
 }
 
-function showRsvpDone(choice){
-  var accepted = choice.indexOf('Accept') > -1;
-  document.getElementById('rsvpDoneTitle').textContent = accepted
-    ? "Thank you — we're so happy you'll be there!"
-    : "Thank you for letting us know — you'll be missed.";
+function setGuestRsvp(index, choice){
+  var guest = rsvpGuests[index];
+  if (!guest || guest.fieldset.disabled) return;
+  var accepts = choice === RSVP_ACCEPT;
+  guest.response = choice;
+  guest.accept.setAttribute('aria-pressed', String(accepts));
+  guest.decline.setAttribute('aria-pressed', String(!accepts));
+  guest.accept.classList.toggle('sel', accepts);
+  guest.accept.classList.toggle('unsel', !accepts);
+  guest.decline.classList.toggle('sel', !accepts);
+  guest.decline.classList.toggle('unsel', accepts);
+  guest.notes.disabled = !accepts;
+  document.getElementById('rsvpRecovery').hidden = true;
+  document.getElementById('rsvpCopyText').hidden = true;
+  var message = document.getElementById('rsvpMsg');
+  message.classList.remove('error');
+  message.textContent = '';
+}
+
+function readRsvpAnswers(){
+  return rsvpGuests.map(function(guest){
+    var accepts = guest.response === RSVP_ACCEPT;
+    return {
+      name: guest.name,
+      response: guest.response,
+      accepts: accepts,
+      dietary: accepts ? guest.notes.value.trim() : ''
+    };
+  });
+}
+
+function showRsvpDone(attending, declined){
+  document.getElementById('rsvpDoneTitle').textContent = attending.length && declined.length
+    ? 'Thank you — we’ve received your RSVPs.'
+    : attending.length
+      ? 'Thank you — we’re so happy you’ll be there!'
+      : 'Thank you for letting us know — you’ll be missed.';
+  var summary = [];
+  if (attending.length) summary.push('Attending: ' + attending.join(', '));
+  if (declined.length) summary.push('Declined: ' + declined.join(', '));
+  document.getElementById('rsvpDoneSummary').textContent = summary.join('\n');
   document.getElementById('rsvpForm').style.display = 'none';
-  document.getElementById('rsvpDone').style.display = 'block';
+  var done = document.getElementById('rsvpDone');
+  done.style.display = 'block';
+  done.focus();
 }
 
 async function copyRsvp(){
-  if (!currentGuest || !rsvpResponse) return;
-  var notes = document.getElementById('rsvpDietary').value.trim();
-  var text = 'Wedding RSVP: ' + fullNameOf(currentGuest) + '\n' +
-    'Response: ' + rsvpResponse + '\n' +
-    'Dietary requirements: ' + (notes || 'None provided');
+  if (!currentGuest || !rsvpGuests.length || rsvpGuests.some(function(guest){ return !guest.response; })) return;
+  var text = 'Wedding RSVP: ' + fullNameOf(currentGuest) + '\n\n' +
+    readRsvpAnswers().map(function(answer){
+      return answer.name + ' — ' + answer.response +
+        (answer.accepts ? '\nDietary requirements: ' + (answer.dietary || 'None provided') : '');
+    }).join('\n\n');
   var msg = document.getElementById('rsvpMsg');
   var copyText = document.getElementById('rsvpCopyText');
   try {
@@ -1404,33 +1506,40 @@ async function sendRsvp(){
   if (btn.disabled || form.style.display === 'none') return;
 
   var msg = document.getElementById('rsvpMsg');
-  var dietary = document.getElementById('rsvpDietary');
-  var choice = rsvpResponse;
   msg.classList.remove('error');
-
-  if (!choice) {
-    msg.classList.add('error');
-    msg.textContent = "Please choose 'Joyfully Accepts' or 'Regretfully Declines' first.";
-    return;
-  }
-  if (!currentGuest) {
+  if (!currentGuest || !rsvpGuests.length) {
     msg.classList.add('error');
     msg.textContent = 'Please open your invitation before sending your RSVP.';
     return;
   }
 
-  var name = fullNameOf(currentGuest);
-  var inviteType = currentGuest.inviteType === 'evening' ? 'Reception / Evening' : 'Full Day';
-  var controls = [btn, dietary, document.getElementById('rsvpAccept'), document.getElementById('rsvpDecline')];
+  var missing = rsvpGuests.find(function(guest){ return !guest.response; });
+  if (missing) {
+    msg.classList.add('error');
+    msg.textContent = 'Please choose a response for ' + missing.name + ' before sending.';
+    missing.accept.focus();
+    return;
+  }
+
+  var answers = readRsvpAnswers();
+  var attending = answers.filter(function(answer){ return answer.accepts; }).map(function(answer){ return answer.name; });
+  var declined = answers.filter(function(answer){ return !answer.accepts; }).map(function(answer){ return answer.name; });
+  var controls = [btn].concat(rsvpGuests.map(function(guest){ return guest.fieldset; }));
   var key = RSVP_WEB3FORMS_ACCESS_KEY.trim();
   var endpoint = key ? 'https://api.web3forms.com/submit' : 'https://formsubmit.co/ajax/' + RSVP_RECIPIENT;
-  var subject = 'Wedding RSVP — ' + name + ' — ' + choice;
+  var subject = 'Wedding RSVP — ' + fullNameOf(currentGuest);
   var payload = {
-    Name: name,
-    Response: choice,
-    Invite: inviteType,
-    'Dietary requirements': dietary.value.trim() || 'None provided'
+    Name: fullNameOf(currentGuest),
+    Invite: currentGuest.inviteType === 'evening' ? 'Reception / Evening' : 'Full Day',
+    Attending: attending.join(', ') || 'None',
+    Declined: declined.join(', ') || 'None'
   };
+  answers.forEach(function(answer, i){
+    var prefix = 'Guest ' + (i + 1);
+    payload[prefix + ' name'] = answer.name;
+    payload[prefix + ' response'] = answer.response;
+    if (answer.accepts) payload[prefix + ' dietary requirements'] = answer.dietary || 'None provided';
+  });
   if (key) {
     payload.access_key = key;
     payload.subject = subject;
@@ -1465,7 +1574,7 @@ async function sendRsvp(){
     if (!response.ok || !data || (data.success !== true && data.success !== 'true')) {
       throw new Error('RSVP_NOT_CONFIRMED');
     }
-    showRsvpDone(choice);
+    showRsvpDone(attending, declined);
   } catch (error) {
     msg.classList.add('error');
     document.getElementById('rsvpRecovery').hidden = false;
@@ -1679,13 +1788,20 @@ function buildGuestFromParts(t, firstName, surname){
     var t = parts[0] || 'f';
     var first = parts[1] || '';
     var last = parts[2] || '';
-    var found = null;
+    var matches = [];
     if (first) {
-      for (var i = 0; i < GUESTS.length; i++) {
-        if (GUESTS[i].welcomeText && normName(GUESTS[i].firstName) === normName(first) && normName(GUESTS[i].surname) === normName(last)) { found = GUESTS[i]; break; }
-      }
+      // A link may name the whole invitation or one of its members.
+      var linkName = normName(first + ' ' + last).replace(/\s+/g, ' ');
+      matches = GUESTS.filter(function(invitation){
+        return invitation.members && normName(jointNames(invitation.members).full).replace(/\s+/g, ' ') === linkName;
+      }).map(sharedInviteMatch);
+      if (!matches.length) matches = collectMatches(normName(first), normName(last));
     }
-    loginWithGuest(found || buildGuestFromParts(t, first, last));
+    if (matches.length > 1) {
+      showGuestChooser(matches);
+      return;
+    }
+    loginWithGuest(matches.length ? matches[0].guest : buildGuestFromParts(t, first, last));
     return;
   }
 })();
